@@ -445,6 +445,73 @@ body.mobile #hand .card.sel{transform:translateY(calc(var(--ty,0px) - 14px)) rot
 </style>
 <link rel="stylesheet" href="assets/theme.css">
 <script src="assets/theme.js" defer></script>
+<style id="ui3d">
+/* ===== 立體按鍵／面板（疊層擠出厚度 + 隨游標傾斜 + 高光跟隨）===== */
+:root{--e1:#3a6a96;--e2:#2b5277;--e3:#1f3d5a;--e4:#152c43;--e5:#0e2034;--e6:#0a1828;--e7:#07111e}
+.btn,.act,.ib{position:relative}
+.btn,.act,.ib,#fxSkip{transform-style:preserve-3d;will-change:transform;
+ transform:perspective(560px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+ transition:transform .14s ease-out,box-shadow .14s ease-out,filter .14s;
+ box-shadow:
+  calc(var(--sx,0px)*.143) calc(var(--sy,0px)*.143 + 1px) 0 var(--e1),
+  calc(var(--sx,0px)*.286) calc(var(--sy,0px)*.286 + 2px) 0 var(--e2),
+  calc(var(--sx,0px)*.429) calc(var(--sy,0px)*.429 + 3px) 0 var(--e3),
+  calc(var(--sx,0px)*.571) calc(var(--sy,0px)*.571 + 4px) 0 var(--e4),
+  calc(var(--sx,0px)*.714) calc(var(--sy,0px)*.714 + 5px) 0 var(--e5),
+  calc(var(--sx,0px)*.857) calc(var(--sy,0px)*.857 + 6px) 0 var(--e6),
+  calc(var(--sx,0px)) calc(var(--sy,0px) + 7px) 0 var(--e7),
+  calc(var(--sx,0px)*1.6) calc(var(--sy,0px)*1.6 + 18px) 18px -4px rgba(0,0,0,.65)}
+.btn::before,.act::before,.ib::before,#fxSkip::before{content:"";position:absolute;inset:-2px;border-radius:10px;pointer-events:none;opacity:0;transition:opacity .15s;
+ background:radial-gradient(130px circle at var(--mx,50%) var(--my,-20%),rgba(255,255,255,.34),transparent 62%);mix-blend-mode:screen}
+.btn:hover:not(:disabled)::before,.act:hover:not(:disabled)::before,.ib:hover::before,#fxSkip:hover::before{opacity:1}
+.btn:hover:not(:disabled),.act:hover:not(:disabled),.ib:hover{filter:brightness(1.18)}
+.btn:active:not(:disabled),.act:active:not(:disabled),.ib:active,#fxSkip:active{transition-duration:.05s;
+ transform:perspective(560px) translateY(5px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+ box-shadow:0 1px 0 var(--e3),0 2px 0 var(--e5),0 5px 8px -2px rgba(0,0,0,.7);filter:brightness(.9)}
+.btn.primary:not(:disabled){animation:primGlow 2.6s ease-in-out infinite}
+.btn.primary:not(:disabled)::after{content:"";position:absolute;inset:0;border-radius:10px;pointer-events:none;
+ background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.32) 50%,transparent 60%);background-size:260% 100%;animation:sheen 3.4s ease-in-out infinite;mix-blend-mode:screen}
+@keyframes sheen{0%{background-position:130% 0}60%,100%{background-position:-60% 0}}
+@keyframes primGlow{50%{filter:brightness(1.14) drop-shadow(0 0 7px rgba(120,190,255,.5))}}
+.btn:disabled,.act:disabled,.act.used{box-shadow:0 1px 0 var(--e4),0 2px 0 var(--e6),0 6px 10px -2px rgba(0,0,0,.6);transform:none}
+.seg{overflow:visible}
+.seg button{position:relative;transition:transform .12s,box-shadow .12s,background .12s;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 2px 0 #0b1a2b}
+.seg button.on{background:linear-gradient(180deg,#4a7ca8,#2b4d6c);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -3px 6px rgba(0,0,20,.4),0 3px 0 #0b1a2b,0 8px 12px -3px rgba(0,0,0,.6);transform:translateY(-1px)}
+.seg button:active{transform:translateY(2px);box-shadow:inset 0 2px 4px rgba(0,0,0,.5)}
+/* 面板：厚板擠出 + 邊緣高光 + 輕微傾斜 */
+.menu-card,.player,.status,.offer,.seat,.sum div{position:relative;transform-style:preserve-3d;
+ transform:perspective(1000px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .18s ease-out,box-shadow .18s;
+ border-top-color:rgba(190,225,255,.55);
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -2px 8px rgba(0,0,0,.35),
+  calc(var(--sx,0px)*.25) calc(var(--sy,0px)*.25 + 1px) 0 #1d344c,calc(var(--sx,0px)*.5) calc(var(--sy,0px)*.5 + 2px) 0 #162a3f,
+  calc(var(--sx,0px)*.75) calc(var(--sy,0px)*.75 + 3px) 0 #10202f,calc(var(--sx,0px)) calc(var(--sy,0px) + 4px) 0 #0b1723,
+  calc(var(--sx,0px)*1.8) calc(var(--sy,0px)*1.8 + 16px) 22px -6px rgba(0,0,0,.65)}
+.player.active{box-shadow:inset 0 1px 0 rgba(255,255,255,.28),inset 0 -2px 8px rgba(0,0,0,.35),0 1px 0 #1d344c,0 2px 0 #162a3f,0 3px 0 #10202f,0 4px 0 #0b1723,0 0 0 2px #95d4ff,0 0 22px 3px rgba(129,191,255,.45),0 16px 22px -6px rgba(0,0,0,.65)}
+.menu-card::before,.player::before,.status::before,.offer::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+ background:radial-gradient(260px circle at var(--mx,30%) var(--my,0%),rgba(190,225,255,.16),transparent 65%)}
+.status:not(.wait){animation:myturn 2s ease-in-out infinite}
+@keyframes myturn{50%{box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 4px 0 #0b1723,0 0 26px 4px rgba(129,200,255,.55),0 16px 22px -6px rgba(0,0,0,.65)}}
+.sheet{box-shadow:0 1px 0 #26435f,0 2px 0 #1b3249,0 3px 0 #12243a,0 4px 0 #0c1827,0 30px 70px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,255,255,.22);animation:sheetIn .35s cubic-bezier(.2,.9,.3,1.15)}
+@keyframes sheetIn{from{opacity:0;transform:perspective(900px) translateY(26px) rotateX(14deg) scale(.96)}}
+.sakura i{animation:cardBob 4.5s ease-in-out infinite;animation-delay:calc(var(--r) * .1s);transform-style:preserve-3d}
+@keyframes cardBob{0%,100%{transform:rotate(var(--r)) translateY(0) rotateY(-14deg)}50%{transform:rotate(var(--r)) translateY(-6px) rotateY(14deg)}}
+.logo{animation:logoFloat 6s ease-in-out infinite}
+@keyframes logoFloat{50%{transform:translateY(-4px);text-shadow:0 8px 20px #000,0 0 40px #b0d1fd88}}
+.hand-card-glow{}
+#hand .card.pickable{filter:drop-shadow(0 0 6px rgba(143,210,255,.35))}
+#hand .card.pickable:hover{filter:drop-shadow(0 0 14px rgba(143,210,255,.8))}
+.card.sel{animation:selGlow 1.3s ease-in-out infinite}
+@keyframes selGlow{50%{box-shadow:0 0 0 2px #ffd27a,0 0 28px 6px rgba(255,210,122,.75)}}
+/* 過場光帶 */
+.sweep{position:absolute;inset:-20% -50%;pointer-events:none;mix-blend-mode:screen;transform:translateX(-70%);animation:sweepx 1.25s ease-in-out forwards;
+ background:linear-gradient(105deg,transparent 38%,rgba(150,205,255,.10) 44%,rgba(210,235,255,.42) 50%,rgba(150,205,255,.10) 56%,transparent 62%)}
+@keyframes sweepx{to{transform:translateX(70%)}}
+.fcard{box-shadow:0 12px 30px rgba(0,0,0,.6),0 0 24px rgba(150,210,255,.35)}
+.fcard.gl{animation:selGlow 1s ease-in-out infinite}
+.vol{width:120px;accent-color:#95d4ff}
+@media (prefers-reduced-motion:reduce){.btn.primary,.btn.primary::after,.logo,.sakura i,.status,.card.sel{animation:none!important}}
+</style>
+
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -545,6 +612,8 @@ body.mobile #hand .card.sel{transform:translateY(calc(var(--ty,0px) - 14px)) rot
 <div class="modal" id="mdMenu"><div class="sheet" style="width:min(440px,100%)"><h2>設定</h2>
   <div class="setrow"><span>裝置顯示</span><div class="seg" id="segDev"><button data-v="auto" class="on">自動</button><button data-v="mobile">手機直式</button><button data-v="desktop">電腦橫式</button></div></div>
   <div class="setrow"><span>過程動畫</span><div class="seg" id="segAnim"><button data-v="full" class="on">完整</button><button data-v="fast">快速</button><button data-v="off">關閉</button></div></div>
+  <div class="setrow"><span>背景音樂</span><div class="seg" id="segMus"><button data-v="1" class="on">開</button><button data-v="0">關</button></div><input class="vol" type="range" id="volMus" min="0" max="100" value="55"></div>
+  <div class="setrow"><span>按鍵／特效音</span><div class="seg" id="segSfx"><button data-v="1" class="on">開</button><button data-v="0">關</button></div><input class="vol" type="range" id="volSfx" min="0" max="100" value="80"></div>
   <div class="setrow" id="rowFS"><span>全螢幕模式</span><button class="btn small" id="btnFS">開啟全螢幕</button></div>
   <div class="setrow" id="rowView"><span>3D 視角</span><button class="btn small" id="btnResetView">重置視角</button></div>
   <div class="note" id="detNote"></div>
@@ -881,6 +950,313 @@ function aiAction(s, seat, lv) {
   return s.phase === 'respond' ? aiRespond(s, seat, lv) : aiChoose(s, seat, lv);
 }
 
+// ===================== 音效與背景音樂（WebAudio 即時合成，不需外部音檔）=====================
+// SND.play(name)  播放音效；SND.setMusic(bool)/setSfx(bool)/setVol('music'|'sfx', 0..1)
+// 背景音樂：慢速藍調（C 小調 12 小節藍調），電鋼琴和弦 + 直立貝斯 walking + 刷子鼓 + 悶音小號即興，持續循環。
+const SND = (() => {
+  const S = { ctx: null, on: { sfx: true, music: true }, vol: { sfx: .8, music: .55 }, started: false, hoverT: 0 };
+  try { const j = JSON.parse(localStorage.getItem('hk-snd') || 'null'); if (j) { Object.assign(S.on, j.on || {}); Object.assign(S.vol, j.vol || {}); } } catch (e) { }
+  const save = () => { try { localStorage.setItem('hk-snd', JSON.stringify({ on: S.on, vol: S.vol })); } catch (e) { } };
+  let master, sfxG, musG, rev, revG, noiseBuf, comp;
+  const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
+
+  function init() {
+    if (S.ctx) return S.ctx;
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
+    const c = S.ctx = new AC();
+    comp = c.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 4; comp.attack.value = .01; comp.release.value = .25;
+    master = c.createGain(); master.gain.value = .9; master.connect(comp); comp.connect(c.destination);
+    sfxG = c.createGain(); sfxG.gain.value = S.on.sfx ? S.vol.sfx : 0; sfxG.connect(master);
+    musG = c.createGain(); musG.gain.value = S.on.music ? S.vol.music : 0; musG.connect(master);
+    // 簡易殘響（雜訊衰減脈衝）
+    rev = c.createConvolver(); const len = c.sampleRate * 2.2, ib = c.createBuffer(2, len, c.sampleRate);
+    for (let ch = 0; ch < 2; ch++) { const d = ib.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
+    rev.buffer = ib; revG = c.createGain(); revG.gain.value = .35; rev.connect(revG); revG.connect(master);
+    const nb = c.createBuffer(1, c.sampleRate * 1.5, c.sampleRate), nd = nb.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+    noiseBuf = nb;
+    return c;
+  }
+  // ---- 基礎發聲 ----
+  function env(g, t, a, d, peak, sus = 0) { g.gain.cancelScheduledValues(t); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(Math.max(sus, .0001), t + a + d); }
+  function tone(o) {
+    const c = S.ctx, t = o.t || c.currentTime, osc = c.createOscillator(), g = c.createGain();
+    osc.type = o.type || 'sine'; osc.frequency.setValueAtTime(o.f, t);
+    if (o.to) osc.frequency.exponentialRampToValueAtTime(o.to, t + (o.d || .2));
+    env(g, t, o.a || .005, o.d || .2, o.v == null ? .3 : o.v);
+    let out = g; if (o.lp) { const f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = o.lp; g.connect(f); out = f; }
+    osc.connect(g); out.connect(o.dest || sfxG); if (o.rv) { const s = c.createGain(); s.gain.value = o.rv; out.connect(s); s.connect(rev); }
+    osc.start(t); osc.stop(t + (o.d || .2) + (o.a || .005) + .05);
+  }
+  function noise(o) {
+    const c = S.ctx, t = o.t || c.currentTime, src = c.createBufferSource(), g = c.createGain(), f = c.createBiquadFilter();
+    src.buffer = noiseBuf; src.loop = true; f.type = o.ft || 'bandpass'; f.frequency.setValueAtTime(o.f || 2000, t); f.Q.value = o.q || 1;
+    if (o.to) f.frequency.exponentialRampToValueAtTime(o.to, t + (o.d || .15));
+    env(g, t, o.a || .003, o.d || .15, o.v == null ? .2 : o.v);
+    src.connect(f); f.connect(g); g.connect(o.dest || sfxG); if (o.rv) { const s = c.createGain(); s.gain.value = o.rv; g.connect(s); s.connect(rev); }
+    src.start(t, Math.random()); src.stop(t + (o.d || .15) + (o.a || .003) + .05);
+  }
+  const bell = (f, t, v, d = .9, dest) => { // 電鋼琴/鈴音：正弦 + 倍頻
+    tone({ t, f, d, v, type: 'sine', dest, rv: .5 }); tone({ t, f: f * 2.0, d: d * .5, v: v * .35, type: 'sine', dest, rv: .4 }); tone({ t, f: f * 3.01, d: d * .25, v: v * .12, type: 'sine', dest });
+  };
+
+  // ---- 音效表 ----
+  const SFX = {
+    hover: t => tone({ t, f: 1800, d: .03, v: .025, type: 'sine' }),
+    tap: t => { noise({ t, f: 3200, q: 2, d: .035, v: .18 }); tone({ t, f: 520, to: 260, d: .09, v: .2, type: 'triangle', lp: 2200 }); },
+    act: t => { tone({ t, f: 196, to: 130, d: .16, v: .28, type: 'triangle', lp: 1800 }); bell(784, t + .02, .12, .5); noise({ t, f: 2400, d: .05, v: .1 }); },
+    back: t => { tone({ t, f: 420, to: 250, d: .12, v: .18, type: 'triangle', lp: 1800 }); },
+    open: t => { noise({ t, ft: 'bandpass', f: 600, to: 2600, q: .8, d: .28, v: .14, rv: .3 }); bell(659, t + .05, .08, .6); },
+    close: t => { noise({ t, ft: 'bandpass', f: 2400, to: 500, q: .8, d: .22, v: .12 }); },
+    select: t => { tone({ t, f: 880, d: .1, v: .16, type: 'triangle', lp: 3000 }); tone({ t: t + .05, f: 1320, d: .14, v: .12, type: 'sine', rv: .3 }); },
+    deal: t => { noise({ t, ft: 'highpass', f: 2500, to: 6000, q: .7, d: .07, v: .22 }); tone({ t, f: 160, to: 90, d: .05, v: .1 }); },
+    draw: t => { noise({ t, ft: 'bandpass', f: 1500, to: 4500, q: .8, d: .16, v: .2 }); tone({ t: t + .14, f: 300, to: 160, d: .08, v: .12, type: 'triangle' }); },
+    flip: t => { noise({ t, ft: 'bandpass', f: 4000, to: 1200, q: 1.2, d: .13, v: .2 }); tone({ t: t + .1, f: 700, d: .05, v: .08 }); },
+    place: t => { tone({ t, f: 150, to: 52, d: .22, v: .55, type: 'sine' }); noise({ t, f: 900, q: 1.5, d: .08, v: .22 }); noise({ t: t + .01, ft: 'highpass', f: 5000, d: .05, v: .1 }); },
+    secret: t => { tone({ t, f: 110, to: 70, d: .6, v: .3, type: 'sine', rv: .3 }); noise({ t, ft: 'bandpass', f: 300, to: 1800, q: 3, d: .5, v: .12, rv: .5 }); bell(392, t + .25, .08, 1.1); },
+    discard: t => { noise({ t, ft: 'bandpass', f: 3000, to: 900, q: .6, d: .35, v: .3 }); noise({ t: t + .12, ft: 'bandpass', f: 2200, q: .6, d: .2, v: .18 }); tone({ t: t + .2, f: 120, to: 60, d: .25, v: .3 }); },
+    offer: t => { bell(523, t, .16, .8); bell(659, t + .12, .15, .8); bell(784, t + .24, .14, 1.0); },
+    compete: t => { bell(392, t, .16, .7); bell(587, t + .1, .16, .7); bell(494, t + .3, .14, .7); bell(740, t + .4, .14, .9); },
+    pick: t => { [880, 1175, 1568, 2093].forEach((f, i) => tone({ t: t + i * .05, f, d: .25, v: .11, type: 'sine', rv: .6 })); noise({ t, ft: 'highpass', f: 6000, d: .2, v: .06 }); },
+    token: t => { tone({ t, f: 1318, d: .12, v: .2, type: 'square', lp: 4000 }); tone({ t: t + .08, f: 1760, d: .45, v: .2, type: 'square', lp: 4500, rv: .4 }); bell(2637, t + .1, .06, .6); },
+    gain: t => { SFX.token(t); bell(523, t, .12, 1); bell(784, t + .08, .1, 1); },
+    lose: t => { tone({ t, f: 330, to: 220, d: .5, v: .14, type: 'triangle', lp: 1600, rv: .5 }); },
+    keep: t => { tone({ t, f: 600, d: .12, v: .08, type: 'sine' }); },
+    reveal: t => { noise({ t, ft: 'bandpass', f: 500, to: 5000, q: 1, d: .5, v: .16, rv: .4 }); bell(988, t + .38, .1, 1.2); },
+    turnMe: t => { bell(784, t, .15, .9); bell(1175, t + .13, .13, 1.1); },
+    turnOp: t => { bell(330, t, .1, .7); },
+    round: t => { [262, 330, 392, 523].forEach((f, i) => bell(f, t + i * .11, .13, 1.4)); noise({ t, ft: 'bandpass', f: 400, to: 3000, q: .7, d: .8, v: .1, rv: .6 }); },
+    win: t => { [[262, 330, 392, 494], [349, 440, 523, 659], [392, 494, 587, 784]].forEach((ch, k) => ch.forEach((f, i) => bell(f, t + k * .42 + i * .04, .11, 1.8))); bell(1568, t + 1.3, .12, 2.2); },
+    lose2: t => { [[262, 311, 392], [233, 294, 349], [196, 247, 294]].forEach((ch, k) => ch.forEach(f => tone({ t: t + k * .5, f, d: 1.2, v: .08, type: 'triangle', lp: 1500, rv: .6 }))); },
+    err: t => { tone({ t, f: 120, d: .18, v: .25, type: 'sawtooth', lp: 500 }); tone({ t: t + .1, f: 95, d: .22, v: .25, type: 'sawtooth', lp: 500 }); },
+    whoosh: t => { noise({ t, ft: 'bandpass', f: 400, to: 3500, q: .7, d: .3, v: .15, rv: .2 }); },
+    spark: t => { bell(2093 + Math.random() * 600, t, .05, .5); },
+  };
+  S.play = (name, delay) => {
+    if (!S.on.sfx) return;
+    const c = init(); if (!c) return;
+    if (c.state === 'suspended') c.resume();
+    const fn = SFX[name]; if (!fn) return;
+    if (name === 'hover') { const n = performance.now(); if (n - S.hoverT < 90) return; S.hoverT = n; }
+    try { fn(c.currentTime + .005 + (delay || 0)); } catch (e) { }
+  };
+
+  // ---- 背景音樂：慢速藍調 ----
+  // 12 小節藍調（C 小調）：和弦以 [根音 MIDI, 型態] 表示
+  const FORM = [['C', 0, 'm7'], ['C', 0, 'm7'], ['C', 0, 'm7'], ['C', 0, '7'], ['F', 5, 'm7'], ['F', 5, 'm7'], ['C', 0, 'm7'], ['C', 0, 'm7'], ['Ab', 8, 'maj7'], ['G', 7, '7'], ['C', 0, 'm7'], ['G', 7, '7alt']];
+  const Q = { 'm7': [0, 3, 7, 10], '7': [0, 4, 7, 10], 'maj7': [0, 4, 7, 11], '7alt': [0, 4, 8, 10] };
+  const BLUES = [0, 3, 5, 6, 7, 10, 12, 15, 17];      // 小調藍調音階（半音）
+  const BPM = 66, BEAT = 60 / BPM;
+  let step = 0, nextT = 0, timer = null, leadK = 4, leadRest = 0;
+  function playBass(t, root, midi, v) {
+    const f = mtof(midi), c = S.ctx, o = c.createOscillator(), o2 = c.createOscillator(), g = c.createGain(), lp = c.createBiquadFilter();
+    o.type = 'triangle'; o2.type = 'sine'; o.frequency.value = f; o2.frequency.value = f * 2;
+    lp.type = 'lowpass'; lp.frequency.setValueAtTime(900, t); lp.frequency.exponentialRampToValueAtTime(260, t + .4);
+    env(g, t, .012, BEAT * .9, v);
+    const g2 = c.createGain(); g2.gain.value = .25; o2.connect(g2); g2.connect(g); o.connect(g); g.connect(lp); lp.connect(musG);
+    o.start(t); o2.start(t); o.stop(t + BEAT); o2.stop(t + BEAT);
+  }
+  function rhodes(t, midi, v, d) {
+    const f = mtof(midi), c = S.ctx;
+    const car = c.createOscillator(), mod = c.createOscillator(), mg = c.createGain(), g = c.createGain(), lp = c.createBiquadFilter();
+    car.type = 'sine'; mod.type = 'sine'; car.frequency.value = f; mod.frequency.value = f * 4;
+    mg.gain.setValueAtTime(f * 1.4, t); mg.gain.exponentialRampToValueAtTime(f * .05, t + d * .5);
+    mod.connect(mg); mg.connect(car.frequency);
+    env(g, t, .008, d, v); lp.type = 'lowpass'; lp.frequency.value = 2600;
+    car.connect(g); g.connect(lp); lp.connect(musG); const s = c.createGain(); s.gain.value = .45; lp.connect(s); s.connect(rev);
+    car.start(t); mod.start(t); car.stop(t + d + .1); mod.stop(t + d + .1);
+  }
+  function lead(t, midi, d, v) {   // 悶音小號感：鋸齒 + 帶通 + 顫音
+    const f = mtof(midi), c = S.ctx, o = c.createOscillator(), g = c.createGain(), bp = c.createBiquadFilter(), lp = c.createBiquadFilter(), lfo = c.createOscillator(), lg = c.createGain();
+    o.type = 'sawtooth'; o.frequency.setValueAtTime(f * .985, t); o.frequency.exponentialRampToValueAtTime(f, t + .06);
+    lfo.frequency.value = 5; lg.gain.value = f * .008; lfo.connect(lg); lg.connect(o.frequency);
+    bp.type = 'bandpass'; bp.frequency.value = 1100; bp.Q.value = .8; lp.type = 'lowpass'; lp.frequency.value = 2200;
+    env(g, t, .05, d, v);
+    o.connect(bp); bp.connect(lp); lp.connect(g); g.connect(musG); const s = c.createGain(); s.gain.value = .6; g.connect(s); s.connect(rev);
+    o.start(t); lfo.start(t); o.stop(t + d + .15); lfo.stop(t + d + .15);
+  }
+  function brush(t, v, hp) { noise({ t, ft: 'highpass', f: hp || 6500, q: .5, d: .09, v, dest: musG }); }
+  function schedule() {
+    const c = S.ctx; if (!c || !S.on.music) return;
+    while (nextT < c.currentTime + .35) {
+      const beatIdx = step % 48, bar = Math.floor(beatIdx / 4), b = beatIdx % 4;      // 12 小節 × 4 拍
+      const [rn, rs, q] = FORM[bar], tones = Q[q], t = nextT;
+      const root = 36 + rs;                                                              // 低音區
+      // 貝斯：walking（根音 → 和弦音 → 經過音）
+      let bn;
+      if (b === 0) bn = root; else if (b === 1) bn = root + tones[1 + (bar % 2)]; else if (b === 2) bn = root + tones[2]; else bn = root + (tones[3] - 2 + (Math.random() < .5 ? 0 : 1));
+      if (bn < 33) bn += 12;
+      playBass(t, rn, bn, .5);
+      // 刷子鼓：swing 八分
+      brush(t, b % 2 ? .05 : .07, 7000); brush(t + BEAT * (2 / 3), .035, 6200);
+      if (b === 1 || b === 3) noise({ t, ft: 'bandpass', f: 1800, q: .7, d: .1, v: .05, dest: musG });    // 2、4 拍刷鼓
+      // 電鋼琴和弦（comping）：每小節第 1 拍、第 2.5 拍
+      if (b === 0 || (b === 2 && Math.random() < .7)) {
+        const voic = [tones[1], tones[3], tones[0] + 12, tones[2] + 12].map(x => 55 + rs % 12 + (x > 14 ? x - 12 : x));
+        voic.forEach((m, i) => rhodes(t + i * .012, m + 12 - (rs > 6 ? 12 : 0), .06, BEAT * (b === 0 ? 2.2 : 1.2)));
+      }
+      // 即興：悶音小號，偶爾休息
+      if (b === 0 && leadRest <= 0 && Math.random() < .55) leadPhrase(t, rs);
+      leadRest--;
+      nextT += BEAT; step++;
+    }
+  }
+  function leadPhrase(t, rs) {
+    const n = 2 + (Math.random() * 3 | 0); let tt = t + (Math.random() < .5 ? BEAT * .66 : 0);
+    for (let i = 0; i < n; i++) {
+      leadK = Math.max(0, Math.min(BLUES.length - 1, leadK + ((Math.random() * 5 | 0) - 2)));
+      const midi = 60 + rs - (rs > 6 ? 12 : 0) + BLUES[leadK];
+      const d = BEAT * (i === n - 1 ? 1.6 : (Math.random() < .4 ? .66 : 1)); lead(tt, midi, d, .045 + Math.random() * .02); tt += d * (Math.random() < .5 ? 1 : .8);
+    }
+    leadRest = 1 + (Math.random() * 3 | 0);
+  }
+  function startMusic() {
+    const c = init(); if (!c || timer) return;
+    if (c.state === 'suspended') c.resume();
+    nextT = c.currentTime + .15; timer = setInterval(schedule, 120); schedule();
+  }
+  function stopMusic() { if (timer) { clearInterval(timer); timer = null; } }
+  S.setMusic = on => { S.on.music = on; save(); if (!S.ctx) return; musG.gain.setTargetAtTime(on ? S.vol.music : 0, S.ctx.currentTime, .15); if (on) startMusic(); };
+  S.setSfx = on => { S.on.sfx = on; save(); if (S.ctx) sfxG.gain.setTargetAtTime(on ? S.vol.sfx : 0, S.ctx.currentTime, .05); };
+  S.setVol = (k, v) => { S.vol[k] = v; save(); if (!S.ctx) return; (k === 'music' ? musG : sfxG).gain.setTargetAtTime(S.on[k] ? v : 0, S.ctx.currentTime, .05); };
+  // 瀏覽器要求先有使用者操作才能發聲：第一次點擊/按鍵時啟動
+  const kick = () => { if (S.started) return; S.started = true; init(); if (S.ctx.state === 'suspended') S.ctx.resume(); if (S.on.music) startMusic(); };
+  ['pointerdown', 'keydown', 'touchstart'].forEach(ev => addEventListener(ev, kick, { passive: true }));
+  document.addEventListener('visibilitychange', () => { if (!S.ctx) return; if (document.hidden) S.ctx.suspend(); else S.ctx.resume(); });
+  return S;
+})();
+
+// ===================== WebGL 特效層（真 3D 透視粒子 + 光效）=====================
+// 全螢幕透明畫布疊在遊戲最上層（不攔截點擊）。粒子有 x/y/z 三維座標，經透視投影；加色混合產生光暈。
+// FXG.burst / ring / flash / beam / trail / confetti / sweepGlow；FXG.cam(kind) 以鏡頭微動表現衝擊。
+const FXG = (() => {
+  const G = { ok: false, list: [], emit: [] };
+  const cv = document.createElement('canvas'); cv.id = 'glfx';
+  cv.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:70';
+  let gl = null, prog, buf, loc = {}, W = 0, H = 0, dpr = 1, last = 0, raf = 0;
+  const MAX = 900, FL = 9;                  // 每顆粒子 9 個 float：x y z size r g b a kind
+  const data = new Float32Array(MAX * FL);
+  const VS = `precision mediump float;attribute vec3 p;attribute float sz;attribute vec4 col;attribute float kd;
+uniform vec2 res;uniform float dist;varying vec4 vc;varying float vk;
+void main(){float f=dist/max(dist-p.z,60.0);vec2 c=res*.5;vec2 s=c+(p.xy-c)*f;
+gl_Position=vec4(s.x/res.x*2.-1.,1.-s.y/res.y*2.,0.,1.);gl_PointSize=min(sz*f,900.);vc=col;vk=kd;}`;
+  const FS = `precision mediump float;varying vec4 vc;varying float vk;
+void main(){vec2 q=gl_PointCoord*2.-1.;float r=length(q);float a;
+if(vk<.5){a=exp(-r*r*3.2);}                                   // 柔光
+else if(vk<1.5){a=smoothstep(.12,0.,abs(r-.82))*(1.-smoothstep(.8,1.,r));} // 光環
+else if(vk<2.5){float c=exp(-r*r*14.);float h=exp(-abs(q.y)*26.)*exp(-abs(q.x)*2.8);float v=exp(-abs(q.x)*26.)*exp(-abs(q.y)*2.8);a=c+.8*(h+v);} // 星芒
+else {a=exp(-q.x*q.x*60.)*(1.-smoothstep(.0,1.,abs(q.y)));}   // 光束（細長）
+if(r>1.&&vk<2.5)discard;gl_FragColor=vec4(vc.rgb*a*vc.a,a*vc.a);}`;
+  function sh(t, s) { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); return o; }
+  function init() {
+    try { gl = cv.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: false }); } catch (e) { gl = null; }
+    if (!gl) return;
+    prog = gl.createProgram(); gl.attachShader(prog, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { gl = null; return; }
+    gl.useProgram(prog); buf = gl.createBuffer();
+    ['p', 'sz', 'col', 'kd'].forEach(n => loc[n] = gl.getAttribLocation(prog, n));
+    loc.res = gl.getUniformLocation(prog, 'res'); loc.dist = gl.getUniformLocation(prog, 'dist');
+    gl.enable(gl.BLEND); gl.blendFunc(gl.ONE, gl.ONE);       // 加色混合
+    document.body.appendChild(cv); resize(); G.ok = true;
+    addEventListener('resize', resize);
+  }
+  function resize() { dpr = Math.min(2, window.devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W * dpr; cv.height = H * dpr; if (gl) gl.viewport(0, 0, cv.width, cv.height); }
+  const hex = h => { h = h.replace('#', ''); if (h.length === 3) h = h.split('').map(x => x + x).join(''); return [parseInt(h.slice(0, 2), 16) / 255, parseInt(h.slice(2, 4), 16) / 255, parseInt(h.slice(4, 6), 16) / 255]; };
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const enabled = () => G.ok && typeof ANIM !== 'undefined' && ANIM.mode !== 'off' && !document.hidden;
+  function add(o) { if (G.list.length < MAX) G.list.push(o); }
+  const base = { life: 1, t: 0, vx: 0, vy: 0, vz: 0, g: 0, drag: 0, s0: 30, s1: 30, a0: 1, k: 0, c: [1, 1, 1], tw: 0, z: 0 };
+  function P(o) { const q = Object.assign({}, base, o); q.t = 0; add(q); return q; }
+  function kick() { if (!raf && gl) { last = performance.now(); raf = requestAnimationFrame(loop); } }
+
+  // ---- 特效 API（座標為視窗像素）----
+  G.burst = (x, y, col = '#ffd27a', n = 26, o = {}) => {
+    if (!enabled()) return; const c = hex(col), sp = o.speed || 260;
+    for (let i = 0; i < n; i++) {
+      const a = Math.random() * 6.283, e = Math.random() * 2 - 1, v = sp * rnd(.25, 1);
+      P({ x, y, z: rnd(-60, 60), vx: Math.cos(a) * v * Math.sqrt(1 - e * e), vy: Math.sin(a) * v * Math.sqrt(1 - e * e) - (o.up || 40), vz: e * v * .9, g: o.g == null ? 420 : o.g, drag: 1.6,
+        life: rnd(.55, 1.2) * (o.life || 1), s0: rnd(14, 34) * (o.size || 1), s1: 2, a0: 1, k: Math.random() < .35 ? 2 : 0, c, tw: 1 });
+    }
+    kick();
+  };
+  G.ring = (x, y, col = '#9ad7ff', size = 260, o = {}) => { if (!enabled()) return; P({ x, y, z: 0, life: o.life || .7, s0: 20, s1: size, a0: .9, k: 1, c: hex(col) }); kick(); };
+  G.flash = (x, y, col = '#ffffff', size = 320, life = .35) => { if (!enabled()) return; P({ x, y, z: 80, life, s0: size * .4, s1: size, a0: .9, k: 0, c: hex(col) }); kick(); };
+  G.star = (x, y, col = '#fff2b0', size = 120, life = .8) => { if (!enabled()) return; P({ x, y, z: 40, life, s0: size * .3, s1: size, a0: 1, k: 2, c: hex(col) }); kick(); };
+  G.beam = (x, y, col = '#bfe4ff', h = 520, life = 1.1) => {   // 由上而下的光柱
+    if (!enabled()) return; const c = hex(col);
+    for (let i = 0; i < 4; i++) P({ x, y: y - h * .32 + i * h * .22, z: 0, life, s0: h * .55, s1: h * .55, a0: .22, k: 3, c });
+    kick();
+  };
+  G.trail = (x0, y0, x1, y1, col = '#ffd27a', dur = .7, o = {}) => { if (!enabled()) return; G.emit.push({ x0, y0, x1, y1, c: col, t: 0, dur, size: o.size || 1 }); kick(); };
+  G.confetti = (cols = ['#ffd27a', '#9ad7ff', '#ffffff', '#f4a6d9'], n = 140) => {
+    if (!enabled()) return;
+    for (let i = 0; i < n; i++) {
+      const c = hex(cols[i % cols.length]); P({ x: rnd(0, W), y: rnd(-120, -10), z: rnd(-250, 350), vx: rnd(-60, 60), vy: rnd(80, 260), vz: rnd(-30, 30), g: 90, drag: .25, life: rnd(2.4, 4.2), s0: rnd(10, 22), s1: rnd(8, 16), a0: 1, k: Math.random() < .5 ? 2 : 0, c, tw: 1 });
+    }
+    kick();
+  };
+  G.shower = (x, y, col = '#ffd27a', n = 36) => G.burst(x, y, col, n, { speed: 340, up: 160, g: 520, life: 1.2, size: 1.1 });
+  G.sweepGlow = (y, col = '#cfe8ff') => {   // 橫向掃過的光暈
+    if (!enabled()) return; const c = hex(col);
+    for (let i = 0; i < 18; i++) P({ x: -60 - i * 30, y: y + rnd(-60, 60), z: rnd(-40, 80), vx: 1500, life: 1.4, s0: rnd(60, 150), s1: 40, a0: .35, k: 0, c });
+    kick();
+  };
+  // 取得元素中心（視窗座標）
+  G.at = el => { if (!el) return null; const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width, h: r.height }; };
+
+  // 鏡頭微動（作用在 #persp，不影響版面與點擊座標）
+  G.cam = (kind = 'thud') => {
+    if (typeof ANIM !== 'undefined' && ANIM.mode === 'off') return;
+    const el = document.getElementById('persp'); if (!el || !el.animate) return;
+    const K = {
+      thud: [{ transform: 'translateY(0) scale(1)' }, { transform: 'translateY(5px) scale(1.012)', offset: .25 }, { transform: 'translateY(0) scale(1)' }],
+      push: [{ transform: 'scale(1) rotateZ(0)' }, { transform: 'scale(1.055) rotateZ(-.6deg)', offset: .4 }, { transform: 'scale(1) rotateZ(0)' }],
+      sway: [{ transform: 'rotateZ(0)' }, { transform: 'rotateZ(1.2deg) translateX(-6px)', offset: .35 }, { transform: 'rotateZ(-.8deg) translateX(4px)', offset: .7 }, { transform: 'rotateZ(0)' }],
+      zoom: [{ transform: 'scale(1)' }, { transform: 'scale(1.09)', offset: .5 }, { transform: 'scale(1)' }],
+    };
+    try { el.animate(K[kind] || K.thud, { duration: (kind === 'thud' ? 320 : 900) * (ANIM.mode === 'fast' ? .6 : 1), easing: 'cubic-bezier(.2,.8,.3,1)' }); } catch (e) { }
+  };
+
+  // ---- 迴圈 ----
+  function loop(now) {
+    raf = 0; const dt = Math.min(.05, (now - last) / 1000); last = now;
+    // 軌跡發射器
+    for (let i = G.emit.length - 1; i >= 0; i--) {
+      const e = G.emit[i]; const t0 = e.t / e.dur; e.t += dt; const t1 = Math.min(1, e.t / e.dur);
+      const n = 3; for (let k = 0; k < n; k++) {
+        const u = t0 + (t1 - t0) * (k / n), ez = u * u * (3 - 2 * u), x = e.x0 + (e.x1 - e.x0) * ez, y = e.y0 + (e.y1 - e.y0) * ez - Math.sin(u * Math.PI) * 60;
+        P({ x: x + rnd(-6, 6), y: y + rnd(-6, 6), z: rnd(-30, 60), vx: rnd(-40, 40), vy: rnd(-40, 40), life: rnd(.3, .6), s0: rnd(18, 30) * e.size, s1: 2, a0: .9, k: Math.random() < .2 ? 2 : 0, c: hex(e.c) });
+      }
+      if (e.t >= e.dur) G.emit.splice(i, 1);
+    }
+    let n = 0;
+    for (let i = G.list.length - 1; i >= 0; i--) {
+      const p = G.list[i]; p.t += dt; if (p.t >= p.life) { G.list.splice(i, 1); continue; }
+      const d = Math.max(0, 1 - p.drag * dt); p.vx *= d; p.vy *= d; p.vz *= d; p.vy += p.g * dt;
+      p.x += p.vx * dt; p.y += p.vy * dt; p.z += p.vz * dt;
+    }
+    if (G.list.length) {
+      gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT);
+      for (const p of G.list) {
+        if (n >= MAX) break; const u = p.t / p.life, o = n * FL;
+        const size = (p.s0 + (p.s1 - p.s0) * u) * dpr;
+        let a = p.a0 * (u < .08 ? u / .08 : (1 - u)); if (p.tw) a *= .75 + .25 * Math.sin(p.t * 30 + p.x);
+        data[o] = p.x * dpr; data[o + 1] = p.y * dpr; data[o + 2] = p.z * dpr; data[o + 3] = size; data[o + 4] = p.c[0]; data[o + 5] = p.c[1]; data[o + 6] = p.c[2]; data[o + 7] = a; data[o + 8] = p.k; n++;
+      }
+      gl.bindBuffer(gl.ARRAY_BUFFER, buf); gl.bufferData(gl.ARRAY_BUFFER, data.subarray(0, n * FL), gl.DYNAMIC_DRAW);
+      const st = FL * 4;
+      gl.enableVertexAttribArray(loc.p); gl.vertexAttribPointer(loc.p, 3, gl.FLOAT, false, st, 0);
+      gl.enableVertexAttribArray(loc.sz); gl.vertexAttribPointer(loc.sz, 1, gl.FLOAT, false, st, 12);
+      gl.enableVertexAttribArray(loc.col); gl.vertexAttribPointer(loc.col, 4, gl.FLOAT, false, st, 16);
+      gl.enableVertexAttribArray(loc.kd); gl.vertexAttribPointer(loc.kd, 1, gl.FLOAT, false, st, 32);
+      gl.uniform2f(loc.res, cv.width, cv.height); gl.uniform1f(loc.dist, 900 * dpr);
+      gl.drawArrays(gl.POINTS, 0, n);
+    } else { gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); }
+    if (G.list.length || G.emit.length) raf = requestAnimationFrame(loop);
+  }
+  if (document.body) init(); else addEventListener('DOMContentLoaded', init);
+  return G;
+})();
+
 // ===================== 過程動畫（導演） =====================
 // 設計：遊戲狀態照常即時更新；新出現的物品先「隱藏待命」(pend)，由導演依序播放
 // 「出牌 → 公開 → 對手選擇 → 牌飛到歸屬位置 → 抽牌 → 結算逐位軍官比較」等過場，
@@ -919,6 +1295,15 @@ function geo() {
     W, H, cx: W / 2, cy: H * 0.5, me: { x: W / 2, y: H + 60 }, op: { x: W / 2, y: -60 },
     slot: k => ctr(slots[k]), fw: Math.max(44, Math.min(90, W * 0.15)),
   };
+}
+// ---- 光影／音效輔助（座標：stage 相對 → 視窗）----
+const SP = p => { const b = stBox(); return { x: p.x + b.left, y: p.y + b.top }; };
+const CMe = '#8fd2ff', COp = '#f4a6d9', CGold = '#ffd27a', CWhite = '#ffffff';
+function lightSweep() {   // 一道斜向光帶掃過牌桌
+  if (ANIM.mode === 'off') return;
+  const c = $('#cine'), d = document.createElement('div'); d.className = 'sweep'; c.appendChild(d);
+  setTimeout(() => d.remove(), 1500);
+  if (typeof FXG !== 'undefined') FXG.sweepGlow(innerHeight * .45);
 }
 const whoV = (Vs, p) => p === Vs.seat ? '你' : Vs.names[p];
 
@@ -1051,6 +1436,7 @@ function fxFinish() {
 // ===================== 各個過場 =====================
 async function stepRound(Vs, e) {
   const g = geo(), d = g.slot(0), w = g.fw * 0.62;
+  SND.play('round'); FXG.cam('push'); lightSweep();
   say('🎴', `第 ${e.n} 局開始`, `${whoV(Vs, e.p)}先手 ・ 洗牌 → 隨機移除 1 張（不公開）→ 每人發 6 張`, e.p === Vs.seat ? 'me' : 'op');
   // 隨機移除 1 張
   const rm = fcard(null, d.x, d.y, g.fw);
@@ -1062,24 +1448,27 @@ async function stepRound(Vs, e) {
   for (let k = 0; k < 12; k++) {
     const mine = k % 2 === 0, c = fcard(null, d.x, d.y, w); cards.push(c);
     const j = Math.floor(k / 2), tgt = mine ? g.me : g.op;
-    setTimeout(() => mv(c, tgt.x + (j - 2.5) * w * 0.7, mine ? g.H - w * 0.9 : w * 0.9, 1, 0, 1, 520), sp(k * 80));
+    setTimeout(() => { mv(c, tgt.x + (j - 2.5) * w * 0.7, mine ? g.H - w * 0.9 : w * 0.9, 1, 0, 1, 520); SND.play('deal'); }, sp(k * 80));
   }
   await sleep(12 * 80 + 560);
   rmAll(cards);
   const ids = Vs.me.hand.slice(); if (Vs.cur === Vs.seat) ids.pop();
   revealHand(ids.sort((a, b) => CARD_TYPE[a] - CARD_TYPE[b] || a - b), 90);
+  ids.forEach((_, k) => setTimeout(() => { SND.play('select'); FXG.star(innerWidth / 2 + (k - ids.length / 2) * 70, innerHeight - 110, CGold, 90, .6); }, sp(k * 90)));
   await sleep(700);
   unsay();
 }
 
 async function stepTurn(Vs) {
   const g = geo(), mine = Vs.cur === Vs.seat, d = g.slot(0);
+  SND.play(mine ? 'turnMe' : 'turnOp');
   say('🎯', mine ? '輪到你了' : `輪到 ${Vs.names[Vs.cur]}`, mine ? '先抽 1 張牌，再選一個尚未使用的行動' : '對手抽 1 張牌，正在思考…', mine ? 'me' : 'op');
   const c = fcard(null, d.x, d.y, g.fw * 0.62);
   const tgt = mine ? g.me : g.op;
   mv(c, d.x, d.y, 1.15, 0, 1, 250); await sleep(260);
   mv(c, tgt.x, tgt.y + (mine ? -60 : 60), .9, 0, 1, 620); await sleep(660);
-  c.remove();
+  c.remove(); SND.play('draw');
+  { const q = SP(tgt); FXG.burst(q.x, q.y + (mine ? -60 : 60), mine ? CMe : COp, 12, { speed: 150 }); }
   if (mine) { const id = Vs.me.hand[Vs.me.hand.length - 1]; if (FX.pendHand.has(id)) revealHand([id]); }
   await sleep(500);
   unsay();
@@ -1089,10 +1478,13 @@ async function stepSecret(Vs, e) {
   const g = geo(), mine = e.p === Vs.seat, src = mine ? g.me : g.op, dst = g.slot(mine ? 3 : 1);
   say('✉️', `${whoV(Vs, e.p)}使用【秘密贈與】`, mine ? '1 張蓋著放一旁，結算時才翻開、算進你這邊' : '1 張蓋著放一旁（內容保密），結算時才翻開', mine ? 'me' : 'op');
   const c = fcard(mine && e.ty != null ? e.ty : null, src.x, src.y, g.fw);
-  mv(c, g.cx, g.cy, 1.35, 0, 1, 560); await sleep(700);
-  if (mine && e.ty != null) { await flip(c, null); }
+  SND.play('whoosh'); mv(c, g.cx, g.cy, 1.35, 0, 1, 560); await sleep(700);
+  { const q = SP({ x: g.cx, y: g.cy }); FXG.ring(q.x, q.y, mine ? CMe : COp, 240); FXG.flash(q.x, q.y, CWhite, 220); } SND.play('place'); FXG.cam('thud');
+  if (mine && e.ty != null) { SND.play('flip'); await flip(c, null); }
   await sleep(250);
-  mv(c, dst.x, dst.y, .42, 0, .95, 620); await sleep(700);
+  { const a = SP({ x: g.cx, y: g.cy }), b = SP(dst); FXG.trail(a.x, a.y, b.x, b.y, mine ? CMe : COp, .6); }
+  SND.play('secret'); mv(c, dst.x, dst.y, .42, 0, .95, 620); await sleep(700);
+  { const q = SP(dst); FXG.burst(q.x, q.y, mine ? CMe : COp, 14, { speed: 140 }); FXG.star(q.x, q.y, CWhite, 90, .6); }
   c.remove(); unsay();
 }
 
@@ -1100,11 +1492,15 @@ async function stepDiscard(Vs, e) {
   const g = geo(), mine = e.p === Vs.seat, src = mine ? g.me : g.op, dst = g.slot(mine ? 4 : 2);
   say('🗑️', `${whoV(Vs, e.p)}使用【無籍銷賬】`, '2 張蓋著放一旁，本局完全不計分', mine ? 'me' : 'op');
   const cs = [0, 1].map(k => fcard(mine && e.ty ? e.ty[k] : null, src.x, src.y, g.fw));
+  SND.play('whoosh');
   cs.forEach((c, k) => mv(c, g.cx + (k - .5) * g.fw * 1.2, g.cy, 1.15, 0, 1, 560));
   await sleep(750);
-  if (mine && e.ty) { await Promise.all(cs.map((c, k) => flip(c, null))); }
+  { const q = SP({ x: g.cx, y: g.cy }); FXG.ring(q.x, q.y, '#9fb4cc', 220); } SND.play('place');
+  if (mine && e.ty) { SND.play('flip'); await Promise.all(cs.map((c, k) => flip(c, null))); }
   await sleep(250);
+  SND.play('discard');
   cs.forEach((c, k) => mv(c, dst.x + (k ? .3 : -.3) * 12, dst.y, .42, 0, .95, 620)); await sleep(700);
+  { const q = SP(dst); FXG.burst(q.x, q.y, '#8aa3c0', 16, { speed: 120, g: 160 }); }
   rmAll(cs); unsay();
 }
 
@@ -1113,8 +1509,12 @@ async function stepGift(Vs, e) {
   const resp = mine ? Vs.names[1 - Vs.seat] : '你';
   say('🤝', `${whoV(Vs, e.p)}使用【經費共用】`, `公開 3 張 ・ ${resp}先選 1 張，剩下 2 張歸${mine ? '你' : whoV(Vs, e.p)}`, mine ? 'me' : 'op');
   const cs = e.ty.map(t => fcard(t, src.x, src.y, g.fw));
+  SND.play('offer');
   cs.forEach((c, k) => mv(c, g.cx + (k - 1) * g.fw * 1.18, g.cy, 1.2, (k - 1) * 3, 1, 600));
-  await sleep(1900);
+  await sleep(700);
+  cs.forEach((c, k) => { const q = SP({ x: g.cx + (k - 1) * g.fw * 1.18, y: g.cy }); setTimeout(() => { FXG.star(q.x, q.y - 20, CGold, 130, .7); SND.play('spark'); }, sp(k * 160)); });
+  FXG.cam('zoom');
+  await sleep(1200);
   cs.forEach(c => mv(c, parseFloat(c.style.left), g.cy - 20, .9, 0, 0, 300)); await sleep(320);
   rmAll(cs); unsay();
 }
@@ -1130,7 +1530,11 @@ async function stepCompete(Vs, e) {
     const b = document.createElement('div'); b.className = 'gbox'; b.textContent = `第 ${gi + 1} 組`;
     b.style.left = gx + 'px'; b.style.top = (g.cy + g.fw * 0.95) + 'px'; $('#cine').appendChild(b); boxes.push(b);
   });
-  await sleep(2200);
+  SND.play('compete');
+  await sleep(700);
+  [-1, 1].forEach((sg, gi) => { const q = SP({ x: g.cx + sg * g.fw * 1.1, y: g.cy }); setTimeout(() => { FXG.ring(q.x, q.y, gi ? COp : CMe, 260); FXG.star(q.x, q.y, CGold, 140, .8); SND.play('spark'); }, sp(gi * 250)); });
+  FXG.cam('zoom');
+  await sleep(1500);
   cs.forEach(c => { c.style.transition = 'opacity .3s'; c.style.opacity = 0; }); rmAll(boxes); await sleep(320);
   rmAll(cs); unsay();
 }
@@ -1153,6 +1557,8 @@ async function stepPick(Vs, e) {
     all.push({ c, ...it });
     mv(c, g.cx + (k - (n - 1) / 2) * gap, g.cy, 1.05, 0, 1, 450);
   });
+  SND.play('pick');
+  all.forEach((a, k) => { if (a.ch) { const q = SP({ x: g.cx + (k - (n - 1) / 2) * gap, y: g.cy }); FXG.star(q.x, q.y, CGold, 150, .9); FXG.burst(q.x, q.y, CGold, 14, { speed: 160 }); } });
   await sleep(1100);
   // 飛向各自歸屬
   const used = new Set();
@@ -1162,11 +1568,14 @@ async function stepPick(Vs, e) {
     let tx, ty, sc = .5;
     if (el) { const r = ctr(el); tx = r.x; ty = r.y; sc = Math.max(.3, r.w / g.fw); }
     else { const r = ctr(ST.cols[t].g); tx = r.x; ty = r.y + (side === 'me' ? 1 : -1) * r.h * 0.9; }
+    { const a = SP({ x: parseFloat(c.style.left), y: parseFloat(c.style.top) }), b = SP({ x: tx, y: ty }); FXG.trail(a.x, a.y, b.x, b.y, ch ? (cs === 'me' ? CMe : COp) : '#b7c4d6', .65, { size: .8 }); }
     mv(c, tx, ty, sc, 0, 1, 700);
     c.classList.remove('gl', 'dim');
   });
   await sleep(760);
-  all.forEach(({ c }) => { showItem(c._el); c.remove(); });
+  SND.play('whoosh');
+  all.forEach(({ c, ch }) => { showItem(c._el); const q = c._el ? FXG.at(c._el) : null; if (q) { FXG.burst(q.x, q.y, ch ? (cs === 'me' ? CMe : COp) : '#b7c4d6', 10, { speed: 120 }); FXG.ring(q.x, q.y, ch ? CGold : '#b7c4d6', 120, { life: .5 }); } c.remove(); });
+  SND.play('place'); FXG.cam('thud');
   await sleep(450);
   unsay();
 }
@@ -1177,6 +1586,7 @@ async function stepSettle(Vs) {
   FX.holdResult = true;
   const side = x => x === null ? 'mid' : (x === m ? 'me' : 'op');
   // 1. 翻開秘密贈與
+  SND.play('reveal'); FXG.cam('push'); lightSweep();
   say('🔓', '本局結算：翻開秘密贈與', '雙方的秘密贈與同時翻開、算進各自這邊（無籍銷賬的牌不計分）', '');
   await sleep(700);
   const used = new Set(), ghosts = [];
@@ -1191,7 +1601,8 @@ async function stepSettle(Vs) {
     mv(c, g.cx + (c._s === 'me' ? 1 : -1) * g.fw * .8, g.cy, 1.9, 0, 1, 450);
   }
   await sleep(520);
-  await Promise.all(ghosts.map(c => flip(c, c._t)));
+  SND.play('flip'); await Promise.all(ghosts.map(c => flip(c, c._t)));
+  ghosts.forEach(c => { const q = SP({ x: parseFloat(c.style.left), y: parseFloat(c.style.top) }); FXG.flash(q.x, q.y, CWhite, 260); FXG.star(q.x, q.y, CGold, 150, .8); });
   await sleep(700);
   ghosts.forEach(c => {
     const el = findPend(c._t, c._s, used);
@@ -1217,8 +1628,13 @@ async function stepSettle(Vs) {
     bub.className = 'cmpb ' + tone;
     bub.innerHTML = `<b><span class="nm1">${a}</span> : <span class="nm2">${b}</span></b><small>${res}</small>`;
     bub.style.left = gc.x + 'px'; bub.style.top = gc.y + 'px'; $('#cine').appendChild(bub);
+    { const q = FXG.at(col.g); if (q) { FXG.ring(q.x, q.y, tone === 'me' ? CMe : tone === 'op' ? COp : '#c8d2de', 220); FXG.beam(q.x, q.y + 40, tone === 'me' ? CMe : tone === 'op' ? COp : '#c8d2de', 420, .9); } }
+    SND.play('select');
     await sleep(450);
     applyTok(i, side(row.after), true); ST.dispFav[i] = row.after; renderPlayers();
+    { const q = FXG.at(col.g), moved = row.after !== row.before;
+      if (q) { if (tone === 'me') { FXG.burst(q.x, q.y, CGold, moved ? 34 : 16, { speed: 280 }); FXG.star(q.x, q.y, CGold, 190, .9); } else if (tone === 'op') FXG.burst(q.x, q.y, COp, 18, { speed: 200 }); }
+      SND.play(tone === 'me' ? (moved ? 'gain' : 'token') : tone === 'op' ? 'lose' : 'keep'); if (moved) FXG.cam('thud'); }
     await sleep(750);
     bub.remove();
     col.g.classList.remove('hl'); col.me.forEach(e => e.classList.remove('hlm')); col.op.forEach(e => e.classList.remove('hlo'));
@@ -1227,9 +1643,12 @@ async function stepSettle(Vs) {
   const sum = `你 ${r.n[m]} 位・${r.c[m]} 分 ｜ ${Vs.names[o]} ${r.n[o]} 位・${r.c[o]} 分`;
   if (Vs.phase === 'gameEnd') {
     const w = Vs.winner;
+    if (w === m) { SND.play('win'); FXG.confetti(); [.2, .5, .8].forEach(f => FXG.beam(innerWidth * f, innerHeight * .55, CGold, 700, 2)); FXG.cam('zoom'); }
+    else if (w === 'tie') SND.play('round'); else SND.play('lose2');
     say('🏆', w === 'tie' ? '平手！' : (w === m ? '你獲勝了！' : `${Vs.names[w]} 獲勝`), `${r.reason} ・ ${sum}`, w === m ? 'me' : 'op');
     await sleep(2200);
   } else {
+    SND.play('round'); FXG.sweepGlow(innerHeight * .5, '#bfe0ff');
     say('📊', '本局結算完成', sum + ' ・ 沒人達標，進入下一局', '');
     await sleep(1800);
   }
@@ -1287,7 +1706,7 @@ function toast(msg, ms) {
   clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), ms || 2200);
 }
 function show(id) { $$('.screen').forEach(x => x.classList.toggle('on', x.id === id)); window.scrollTo(0, 0); }
-function openModal(id) { $('#' + id).classList.add('on'); }
+function openModal(id) { $('#' + id).classList.add('on'); SND.play('open'); }
 function closeModal(id) { $('#' + id).classList.remove('on'); }
 const tn = t => `<span class="tag" style="--c:${TYPES[t].color}">${TYPES[t].name}</span>`;
 const nameOf = p => V ? V.names[p] : '';
@@ -1961,6 +2380,11 @@ function init() {
   $('#btnFS').onclick = toggleFS;
   $('#btnResetView').onclick = () => { resetView(); fitStage(); closeModal('mdMenu'); };
   $('#btnOrientGo').onclick = () => { orientDismissed = true; checkOrient(); };
+  seg('#segMus', v => SND.setMusic(v === '1')); seg('#segSfx', v => SND.setSfx(v === '1'));
+  $('#volMus').oninput = e => SND.setVol('music', +e.target.value / 100); $('#volSfx').oninput = e => { SND.setVol('sfx', +e.target.value / 100); };
+  $('#volSfx').onchange = () => SND.play('tap');
+  $$('#segMus button').forEach(b => b.classList.toggle('on', (b.dataset.v === '1') === SND.on.music)); $$('#segSfx button').forEach(b => b.classList.toggle('on', (b.dataset.v === '1') === SND.on.sfx));
+  $('#volMus').value = Math.round(SND.vol.music * 100); $('#volSfx').value = Math.round(SND.vol.sfx * 100);
   seg('#segAnim', v => { ANIM.mode = v; try { localStorage.setItem('hk-anim', v); } catch (e) { } });
   seg('#segDev', v => { PREF.dev = v; try { localStorage.setItem('hk-dev', v); } catch (e) { } applyDevice(); openSettings(); });
   document.addEventListener('fullscreenchange', () => { updateFSBtn(); setTimeout(fitStage, 80); });
@@ -1977,6 +2401,35 @@ function init() {
   $('#inName').addEventListener('change', () => { try { sessionStorage.setItem('hk-name', readName()); } catch (e) { } });
 }
 init();
+
+// ===================== 介面音效與立體傾斜 =====================
+(() => {
+  const BTN = '.btn,.act,.ib,#fxSkip,.link', PAN = '.menu-card,.player,.status,.offer,.seat,.sum div';
+  document.addEventListener('click', e => {
+    const t = e.target; if (!t.closest) return;
+    if (t.closest('[data-close]')) { SND.play('close'); return; }
+    if (t.closest('#fxSkip')) { SND.play('whoosh'); return; }
+    const a = t.closest('.act'); if (a) { if (!a.disabled) SND.play('act'); else SND.play('err'); return; }
+    const c = t.closest('#hand .card'); if (c) { if (!c.disabled) SND.play('select'); else SND.play('err'); return; }
+    if (t.closest('#offer [data-g]')) { SND.play('select'); return; }
+    const b = t.closest('.btn,.ib,.seg button,.link,button'); if (b && !b.disabled) SND.play(b.classList.contains('primary') ? 'act' : 'tap');
+  }, true);
+  document.addEventListener('mouseover', e => { const t = e.target.closest && e.target.closest(BTN + ',.seg button,#hand .card.pickable'); if (t && !t.disabled && t !== document._hv) { document._hv = t; SND.play('hover'); } });
+  let cur = null;
+  const clear = el => { if (!el) return; ['--rx', '--ry', '--mx', '--my', '--sx', '--sy'].forEach(k => el.style.removeProperty(k)); };
+  document.addEventListener('pointermove', e => {
+    if (e.pointerType === 'touch') return;
+    const t = e.target.closest ? e.target.closest(BTN + ',' + PAN) : null;
+    if (cur && cur !== t) { clear(cur); cur = null; }
+    if (!t || t.disabled) return; cur = t;
+    const r = t.getBoundingClientRect(), px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height, k = t.matches(BTN) ? 1 : .22;
+    const s = t.style;
+    s.setProperty('--ry', ((px - .5) * 18 * k).toFixed(1) + 'deg'); s.setProperty('--rx', ((.5 - py) * 15 * k).toFixed(1) + 'deg');
+    s.setProperty('--mx', (px * 100).toFixed(0) + '%'); s.setProperty('--my', (py * 100).toFixed(0) + '%');
+    s.setProperty('--sx', (-(px - .5) * 6 * (k > .5 ? 1 : 2)).toFixed(1) + 'px'); s.setProperty('--sy', (-(py - .5) * 4 * (k > .5 ? 1 : 2)).toFixed(1) + 'px');
+  }, { passive: true });
+  document.documentElement.addEventListener('pointerleave', () => { clear(cur); cur = null; });
+})();
 </script>
 <script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}</script>
 </body></html>
