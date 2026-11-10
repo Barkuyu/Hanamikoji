@@ -786,7 +786,7 @@ function buildStage() {
   let h = `<div class="o" id="wood" style="${pos(0, 0, 0)};--z:-.22"></div>
     <div class="o" id="felt" style="${pos(0, 0, 0)};--z:-.12"><span class="felt-lb t">對　手</span><span class="felt-lb b">你</span></div>`;
   TYPES.forEach((T, i) => {
-    h += `<div class="o g3" id="g${i}" style="--c:${T.color};background-image:url(cards/${T.code}.jpg);${pos(colX(i), 0, .07)}" data-o="mid" title="${T.code} ${T.off}（能力 ${T.charm}）"><div class="nmz">${T.off}<small>軍官 ${T.code}</small></div></div>`;
+    h += `<div class="o g3" id="g${i}" style="--c:${T.color};background-image:url(cards/${T.code}.jpg);${pos(colX(i), 0, .07)}" data-o="mid" title="${T.code} ${T.off}（能力 ${T.charm}）"><div class="nmz">${T.off}</div></div>`;
     h += `<div class="o tok" id="tk${i}" data-o="mid" style="${pos(colX(i), NEUY, .3)}">★</div>`;
     h += `<div class="o nb" id="nbo${i}" style="${pos(colX(i) + .52, -1.62, .14)};display:none"></div>`;
     h += `<div class="o nb" id="nbm${i}" style="${pos(colX(i) + .52, 1.62, .14)};display:none"></div>`;
