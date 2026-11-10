@@ -384,6 +384,45 @@ body{background:#f6efe0}
 .nb{background:rgba(70,45,20,.92)}
 .tok::after{background:#7d6a4a;box-shadow:0 0 calc(var(--u)*.3) rgba(90,60,20,.5)}
 .slot{border-color:rgba(138,87,7,.45);color:rgba(138,87,7,.65)}
+
+/* ===== 物品圖片卡 ===== */
+.card{background-size:cover;background-position:center;background-color:#222}
+.card .t{font-size:clamp(8px,.95vw,11px);padding:2px 1px;letter-spacing:-.02em;background:rgba(0,0,0,.6)}
+body.mobile #hand .card .t,.offer .card .t{font-size:8px}
+.card.pendh{visibility:hidden}
+.card.new{animation:newc 1.1s ease-out backwards}
+@keyframes newc{0%{transform:translateY(-70px) scale(.6);opacity:0}45%{transform:translateY(-14px) scale(1.08);opacity:1;box-shadow:0 0 0 3px #f0b429,0 0 22px 6px rgba(255,200,60,.85)}100%{transform:none}}
+.i3{height:calc(var(--u)*.96);background-size:cover;background-position:center;background-color:#222}
+.i3.pend{visibility:hidden}
+.i3.show{animation:pop .6s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes pop{0%{transform:translate(-50%,-50%) translateZ(calc(var(--u)*1.4)) scale(1.3);opacity:.2}100%{transform:translate(-50%,-50%) translateZ(calc(var(--u)*var(--z,0))) scale(1);opacity:1}}
+.i3.hlm{outline:calc(var(--u)*.06) solid #f0b429}
+.i3.hlo{outline:calc(var(--u)*.06) solid #e2705f}
+.g3.hl{outline:calc(var(--u)*.08) solid #f0b429}
+.pc.face{background-size:cover;background-position:center}
+
+/* ===== 過程動畫層 ===== */
+#cine{position:absolute;inset:0;pointer-events:none;z-index:6;overflow:hidden}
+.fcard{position:absolute;border-radius:9px;background-size:cover;background-position:center;background-color:#222;border:2px solid #fff;box-shadow:0 8px 22px rgba(60,40,10,.5);will-change:left,top,transform}
+.fcard.back{background:repeating-linear-gradient(45deg,#4a3585 0 5px,#33265f 5px 10px)}
+.fcard.gl{box-shadow:0 0 0 3px #f0b429,0 0 22px 6px rgba(255,200,60,.85)}
+.fcard.dim{filter:grayscale(.6) brightness(.8)}
+.fcard span{position:absolute;left:0;right:0;bottom:0;font:700 10px/1.5 var(--sans);color:#fff;text-align:center;background:rgba(0,0,0,.6);border-radius:0 0 7px 7px}
+.gbox{position:absolute;transform:translate(-50%,0);font:700 12px var(--serif);color:var(--gold2);background:rgba(255,255,255,.85);border-radius:10px;padding:1px 10px;white-space:nowrap}
+.say{position:absolute;left:50%;top:6px;transform:translate(-50%,-10px);opacity:0;transition:opacity .25s,transform .25s;max-width:94%;text-align:center;
+  background:rgba(255,253,246,.96);border:2px solid #d9a02b;border-radius:14px;padding:6px 14px;box-shadow:0 8px 24px rgba(90,60,20,.3);display:flex;flex-direction:column;align-items:center;gap:1px}
+.say.on{opacity:1;transform:translate(-50%,0)}
+.say.op{border-color:#d9604f}.say.me{border-color:#d9a02b}
+.say i{font-style:normal;font-size:20px;line-height:1}
+.say b{font:900 17px/1.25 var(--serif);color:#3b2f24}
+.say small{font-size:12.5px;color:#6b5238;line-height:1.35}
+.cmpb{position:absolute;transform:translate(-50%,-50%);padding:3px 8px;border-radius:12px;background:rgba(255,253,246,.96);border:2px solid #b9ad94;text-align:center;box-shadow:0 4px 14px rgba(60,40,10,.4);white-space:nowrap;transition:opacity .2s}
+.cmpb.me{border-color:#d9a02b}.cmpb.op{border-color:#d9604f}
+.cmpb b{display:block;font:900 17px/1.1 var(--serif);color:#3b2f24}
+.cmpb b .nm1{color:#b8780f}.cmpb b .nm2{color:#c23d2e}
+.cmpb small{display:block;font:700 11px/1.3 var(--sans);color:#5b4630}
+#fxSkip{position:absolute;right:8px;bottom:8px;z-index:7;border:1px solid rgba(138,87,7,.5);background:rgba(255,255,255,.9);border-radius:16px;padding:5px 12px;font-size:13px;color:#5a3a08}
+#fxSkip[hidden]{display:none}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -469,7 +508,7 @@ body{background:#f6efe0}
     <div id="banner"></div>
   </div>
   <div class="player" id="opp"></div>
-  <div id="stage"><div id="persp"><div id="world"><div id="org"></div></div></div><div class="stage-hint">拖曳旋轉 · 滾輪縮放 · 雙擊重置</div></div>
+  <div id="stage"><div id="persp"><div id="world"><div id="org"></div></div></div><div id="cine"><div id="cineSay" class="say"></div></div><button id="fxSkip" hidden>略過動畫 ⏭</button><div class="stage-hint">拖曳旋轉 · 滾輪縮放 · 雙擊重置</div></div>
   <div class="status" id="status"></div>
   <div id="offer"></div>
   <div class="player" id="mePanel"></div>
@@ -484,6 +523,7 @@ body{background:#f6efe0}
 <div class="modal" id="mdLog"><div class="sheet"><h2>對局紀錄</h2><div class="logbox" id="logbox"></div><div style="text-align:right;margin-top:10px"><button class="btn" data-close>關閉</button></div></div></div>
 <div class="modal" id="mdMenu"><div class="sheet" style="width:min(440px,100%)"><h2>設定</h2>
   <div class="setrow"><span>裝置顯示</span><div class="seg" id="segDev"><button data-v="auto" class="on">自動</button><button data-v="mobile">手機直式</button><button data-v="desktop">電腦橫式</button></div></div>
+  <div class="setrow"><span>過程動畫</span><div class="seg" id="segAnim"><button data-v="full" class="on">完整</button><button data-v="fast">快速</button><button data-v="off">關閉</button></div></div>
   <div class="setrow" id="rowFS"><span>全螢幕模式</span><button class="btn small" id="btnFS">開啟全螢幕</button></div>
   <div class="setrow" id="rowView"><span>3D 視角</span><button class="btn small" id="btnResetView">重置視角</button></div>
   <div class="note" id="detNote"></div>
@@ -496,13 +536,13 @@ body{background:#f6efe0}
 <script>
 // ===================== 規則引擎（純資料，無 DOM） =====================
 const TYPES = [
-  { code: 'A', name: '茶具', off: '連士督', charm: 2, color: '#2f9c95' },
-  { code: 'B', name: '髮簪', off: '排長', charm: 2, color: '#d9729f' },
-  { code: 'C', name: '摺扇', off: '作戰官', charm: 2, color: '#dd8a2e' },
-  { code: 'D', name: '油紙傘', off: '參謀主任', charm: 3, color: '#7d5fc9' },
-  { code: 'E', name: '手鞠', off: '營長', charm: 3, color: '#5f9f4a' },
-  { code: 'F', name: '橫笛', off: '處長', charm: 4, color: '#3f78bd' },
-  { code: 'G', name: '三味線', off: '總司令', charm: 5, color: '#bf3f36' },
+  { code: 'A', name: '18天生啤酒', off: '連士督', charm: 2, color: '#2e9b4f' },
+  { code: 'B', name: 'iPhone Duo', off: '排長', charm: 2, color: '#2f6fd0' },
+  { code: 'C', name: 'RM機械表', off: '作戰官', charm: 2, color: '#8a4fc4' },
+  { code: 'D', name: '瑪莎拉蒂鑰匙', off: '參謀主任', charm: 3, color: '#c83a30' },
+  { code: 'E', name: '豪宅所有權狀', off: '營長', charm: 3, color: '#c98a3b' },
+  { code: 'F', name: '國防採購合約', off: '處長', charm: 4, color: '#1f9aa6' },
+  { code: 'G', name: '政治獻金', off: '總司令', charm: 5, color: '#b53a6a' },
 ];
 const CARD_TYPE = [];
 TYPES.forEach((t, i) => { for (let k = 0; k < t.charm; k++) CARD_TYPE.push(i); });
@@ -621,12 +661,12 @@ function act(s, seat, a) {
       P.used[a.t] = true;
       if (a.t === 'secret') {
         P.secret = a.cards[0];
-        s.log.push({ k: 'secret', p: seat });
+        s.log.push({ k: 'secret', p: seat, ty: typeOf(a.cards[0]) });
         s.v++; endTurn(s); return { ok: true };
       }
       if (a.t === 'discard') {
         P.discard = a.cards.slice();
-        s.log.push({ k: 'discard', p: seat });
+        s.log.push({ k: 'discard', p: seat, ty: a.cards.map(typeOf) });
         s.v++; endTurn(s); return { ok: true };
       }
       s.pending = { kind: 'gift', by: seat, cards: a.cards.slice() };
@@ -691,7 +731,7 @@ function viewFor(s, seat, names) {
       discardN: op.discard.length, secret: rev ? op.secret : null, discard: rev ? op.discard.slice() : null,
     },
     pending: s.pending ? JSON.parse(JSON.stringify(s.pending)) : null,
-    log: s.log.slice(-80), result: s.result, ready: s.ready.slice(), winner: s.winner,
+    logN: s.log.length, log: s.log.slice(-80).map(x => ((x.k === 'secret' || x.k === 'discard') && x.p !== seat) ? { k: x.k, p: x.p } : x), result: s.result, ready: s.ready.slice(), winner: s.winner,
     names: names || ['玩家', '玩家'],
   };
 }
@@ -820,6 +860,364 @@ function aiAction(s, seat, lv) {
   return s.phase === 'respond' ? aiRespond(s, seat, lv) : aiChoose(s, seat, lv);
 }
 
+// ===================== 過程動畫（導演） =====================
+// 設計：遊戲狀態照常即時更新；新出現的物品先「隱藏待命」(pend)，由導演依序播放
+// 「出牌 → 公開 → 對手選擇 → 牌飛到歸屬位置 → 抽牌 → 結算逐位軍官比較」等過場，
+// 播到對應時間點才讓牌/標記出現。可略過、可調速、可關閉。
+const ANIM = { mode: 'full' };   // full | fast | off
+const FX = {
+  q: [], busy: false, skip: false, wake: [], pendNew: false, deferTok: false, holdResult: false,
+  pendHand: new Set(), prevHand: null, lastLogN: -1, turnKey: '', settledRound: 0, freeze: false,
+};
+const sp = ms => ms * (ANIM.mode === 'fast' ? 0.55 : 1);
+function sleep(ms) {
+  return new Promise(res => {
+    if (FX.skip || ANIM.mode === 'off') { res(); return; }
+    const done = () => { clearTimeout(t); const i = FX.wake.indexOf(done); if (i >= 0) FX.wake.splice(i, 1); res(); };
+    const t = setTimeout(done, sp(ms)); FX.wake.push(done);
+  });
+}
+function skipFx() { FX.skip = true; FX.userSkip = true; FX.wake.slice().forEach(f => f()); }
+function killFx() { FX.skip = true; FX.wake.slice().forEach(f => f()); setTimeout(() => { if (!FX.userSkip) FX.skip = false; }, 0); }
+function fxReset() {
+  FX.q.length = 0; killFx();
+  FX.pendHand.clear(); FX.prevHand = null; FX.lastLogN = -1; FX.turnKey = ''; FX.settledRound = 0;
+  FX.deferTok = false; FX.holdResult = false; FX.pendNew = false;
+  const c = $('#cine'); if (c) c.querySelectorAll('.fcard,.cmpb,.gbox').forEach(x => x.remove());
+}
+
+// ---- 幾何 ----
+const stBox = () => $('#stage').getBoundingClientRect();
+function ctr(el) {
+  const r = el.getBoundingClientRect(), s = stBox();
+  return { x: r.left + r.width / 2 - s.left, y: r.top + r.height / 2 - s.top, w: r.width, h: r.height };
+}
+function geo() {
+  const st = $('#stage'), W = st.clientWidth, H = st.clientHeight, slots = $$('#org .slot');
+  return {
+    W, H, cx: W / 2, cy: H * 0.5, me: { x: W / 2, y: H + 60 }, op: { x: W / 2, y: -60 },
+    slot: k => ctr(slots[k]), fw: Math.max(44, Math.min(90, W * 0.15)),
+  };
+}
+const whoV = (Vs, p) => p === Vs.seat ? '你' : Vs.names[p];
+
+// ---- 動畫卡 ----
+function place(el, x, y, s = 1, r = 0, op = 1, ry = 0) {
+  el.style.left = x + 'px'; el.style.top = y + 'px'; el.style.opacity = op;
+  el.style.transform = `translate(-50%,-50%) scale(${s}) rotate(${r}deg) rotateY(${ry}deg)`;
+}
+function fcard(ty, x, y, w, extra) {
+  const el = document.createElement('div');
+  el.className = 'fcard' + (ty == null ? ' back' : '') + (extra ? ' ' + extra : '');
+  el.style.width = w + 'px'; el.style.height = (w * 1.5) + 'px';
+  if (ty != null) { el.style.backgroundImage = `url(items/${TYPES[ty].code}.jpg)`; el.innerHTML = `<span>${TYPES[ty].name}</span>`; }
+  $('#cine').appendChild(el); place(el, x, y, 1, 0, 0); void el.offsetWidth;
+  return el;
+}
+function mv(el, x, y, s = 1, r = 0, op = 1, ms = 600, ry = 0) {
+  const d = Math.max(1, sp(ms));
+  el.style.transition = `left ${d}ms cubic-bezier(.3,.8,.3,1),top ${d}ms cubic-bezier(.3,.8,.3,1),transform ${d}ms cubic-bezier(.3,.8,.3,1),opacity ${d}ms`;
+  place(el, x, y, s, r, op, ry);
+}
+async function flip(el, ty) {   // 翻面：ty=null → 翻成牌背；否則翻成正面
+  const cur = el.style.transform, left = el.style.left, top = el.style.top;
+  const base = cur.replace(/rotateY\([^)]*\)/, '');
+  el.style.transition = `transform ${Math.max(1, sp(180))}ms`;
+  el.style.transform = base + ' rotateY(90deg)'; await sleep(190);
+  if (ty == null) { el.classList.add('back'); el.style.backgroundImage = ''; el.innerHTML = ''; }
+  else { el.classList.remove('back'); el.style.backgroundImage = `url(items/${TYPES[ty].code}.jpg)`; el.innerHTML = `<span>${TYPES[ty].name}</span>`; }
+  el.style.transform = base + ' rotateY(0deg)'; await sleep(190);
+  el.style.left = left; el.style.top = top;
+}
+function say(icon, title, sub, tone) {
+  const b = $('#cineSay');
+  b.className = 'say on ' + (tone || '');
+  b.innerHTML = `<i>${icon}</i><b>${title}</b>${sub ? `<small>${sub}</small>` : ''}`;
+}
+const unsay = () => $('#cineSay').classList.remove('on');
+const rmAll = els => els.forEach(e => e.remove());
+
+// ---- 揭示（讓待命的物品/手牌出現）----
+function showItem(el) {
+  if (!el) return;
+  el.classList.remove('pend'); el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 700);
+  updNb(+el.dataset.c, el.dataset.s);
+}
+function findPend(ty, side, used) {
+  const els = ST.cols[ty][side];
+  for (const e of els) if (e.classList.contains('pend') && !used.has(e)) { used.add(e); return e; }
+  return null;
+}
+function revealHand(ids, stagger) {
+  ids.forEach((id, k) => {
+    FX.pendHand.delete(id);
+    const el = $(`#hand .card[data-id="${id}"]`);
+    if (el) {
+      el.classList.remove('pendh'); el.style.animationDelay = sp(k * (stagger || 0)) + 'ms';
+      el.classList.add('new'); setTimeout(() => { el.classList.remove('new'); el.style.animationDelay = ''; }, sp(1400 + k * (stagger || 0)));
+    }
+  });
+}
+function flushPend() {
+  $$('#org .i3.pend').forEach(showItem);
+  const ids = [...FX.pendHand]; FX.pendHand.clear();
+  ids.forEach(id => { const el = $(`#hand .card[data-id="${id}"]`); if (el) el.classList.remove('pendh'); });
+}
+
+// ---- 觀察新狀態，排入過場 ----
+function fxObserve() {
+  if (!V) return;
+  if (ANIM.mode === 'off') {
+    FX.lastLogN = V.logN; FX.pendNew = false; FX.deferTok = false; FX.holdResult = false;
+    FX.settledRound = V.round; FX.turnKey = V.round + '-' + V.turnNo + '-' + V.cur; FX.prevHand = V.me.hand.slice();
+    return;
+  }
+  const Vs = V, steps = [];
+  const fresh = FX.lastLogN < 0 || Vs.logN < FX.lastLogN;
+  let evs = [];
+  if (fresh) { fxReset(); evs = Vs.logN <= 2 ? Vs.log.filter(e => e.k === 'round').slice(-1) : []; FX.prevHand = null; FX.settledRound = 0; if (!evs.length) { FX.settledRound = Vs.phase === 'settle' || Vs.phase === 'gameEnd' ? Vs.round : 0; } }
+  else if (Vs.logN > FX.lastLogN) evs = Vs.log.slice(-(Vs.logN - FX.lastLogN));
+  FX.lastLogN = Vs.logN;
+  const roundStart = evs.some(e => e.k === 'round');
+  // 手牌：新進手牌先隱藏，等抽牌/發牌動畫
+  const cur = Vs.me.hand;
+  if (roundStart) cur.forEach(id => FX.pendHand.add(id));
+  else if (FX.prevHand) cur.filter(id => !FX.prevHand.includes(id)).forEach(id => FX.pendHand.add(id));
+  FX.prevHand = cur.slice();
+  for (const e of evs) {
+    if (e.k === 'round') steps.push(() => stepRound(Vs, e));
+    else if (e.k === 'secret') steps.push(() => stepSecret(Vs, e));
+    else if (e.k === 'discard') steps.push(() => stepDiscard(Vs, e));
+    else if (e.k === 'gift') steps.push(() => stepGift(Vs, e));
+    else if (e.k === 'compete') steps.push(() => stepCompete(Vs, e));
+    else if (e.k === 'pickGift' || e.k === 'pickGroup') steps.push(() => stepPick(Vs, e));
+  }
+  const key = Vs.round + '-' + Vs.turnNo + '-' + Vs.cur;
+  if (Vs.phase === 'turn' && key !== FX.turnKey) { FX.turnKey = key; steps.push(() => stepTurn(Vs)); }
+  const inSettle = Vs.phase === 'settle' || Vs.phase === 'gameEnd';
+  if (inSettle && FX.settledRound !== Vs.round) {
+    FX.settledRound = Vs.round; FX.deferTok = true; FX.holdResult = true;
+    steps.push(() => stepSettle(Vs));
+  }
+  FX.pendNew = steps.length > 0 || FX.busy;
+  steps.forEach(s => FX.q.push(s));
+}
+
+async function fxRun() {
+  if (FX.busy) return;
+  FX.busy = true;
+  $('#fxSkip').hidden = false;
+  if (V) { renderActs(); renderStatus(); }
+  while (FX.q.length) {
+    const st = FX.q.shift(); FX.cur = st.toString().slice(6, 20); FX.curN = 0; if (window.__fxlog) console.log('CONSOLE step ' + st.toString().slice(6, 40));
+    try { await Promise.race([st(), new Promise((_, rj) => setTimeout(() => { if (!FX.noTimeout) rj(new Error('fx timeout')); }, 20000))]); }
+    catch (e) { console.warn('fx', e); }
+    if (FX.freeze) { await new Promise(() => { }); }
+  }
+  fxFinish();
+}
+function fxFinish() {
+  unsay();
+  const c = $('#cine'); c.querySelectorAll('.fcard,.cmpb,.gbox').forEach(x => x.remove());
+  flushPend();
+  $$('#org .hl,#org .hlm,#org .hlo').forEach(e => e.classList.remove('hl', 'hlm', 'hlo'));
+  FX.deferTok = false; FX.holdResult = false; FX.busy = false; FX.skip = false; FX.userSkip = false; FX.pendNew = false;
+  $('#fxSkip').hidden = true;
+  if (V) render();
+}
+
+// ===================== 各個過場 =====================
+async function stepRound(Vs, e) {
+  const g = geo(), d = g.slot(0), w = g.fw * 0.62;
+  say('🎴', `第 ${e.n} 局開始`, `${whoV(Vs, e.p)}先手 ・ 洗牌 → 隨機移除 1 張（不公開）→ 每人發 6 張`, e.p === Vs.seat ? 'me' : 'op');
+  // 隨機移除 1 張
+  const rm = fcard(null, d.x, d.y, g.fw);
+  rm.innerHTML = '<span>✕ 移除</span>';
+  mv(rm, g.cx, g.cy, 1.25, -6, 1, 520); await sleep(900);
+  mv(rm, g.W - 24, g.cy, .5, 10, 0, 500); await sleep(450); rm.remove();
+  // 發牌 12 張
+  const cards = [];
+  for (let k = 0; k < 12; k++) {
+    const mine = k % 2 === 0, c = fcard(null, d.x, d.y, w); cards.push(c);
+    const j = Math.floor(k / 2), tgt = mine ? g.me : g.op;
+    setTimeout(() => mv(c, tgt.x + (j - 2.5) * w * 0.7, mine ? g.H - w * 0.9 : w * 0.9, 1, 0, 1, 520), sp(k * 80));
+  }
+  await sleep(12 * 80 + 560);
+  rmAll(cards);
+  const ids = Vs.me.hand.slice(); if (Vs.cur === Vs.seat) ids.pop();
+  revealHand(ids.sort((a, b) => CARD_TYPE[a] - CARD_TYPE[b] || a - b), 90);
+  await sleep(700);
+  unsay();
+}
+
+async function stepTurn(Vs) {
+  const g = geo(), mine = Vs.cur === Vs.seat, d = g.slot(0);
+  say('🎯', mine ? '輪到你了' : `輪到 ${Vs.names[Vs.cur]}`, mine ? '先抽 1 張牌，再選一個尚未使用的行動' : '對手抽 1 張牌，正在思考…', mine ? 'me' : 'op');
+  const c = fcard(null, d.x, d.y, g.fw * 0.62);
+  const tgt = mine ? g.me : g.op;
+  mv(c, d.x, d.y, 1.15, 0, 1, 250); await sleep(260);
+  mv(c, tgt.x, tgt.y + (mine ? -60 : 60), .9, 0, 1, 620); await sleep(660);
+  c.remove();
+  if (mine) { const id = Vs.me.hand[Vs.me.hand.length - 1]; if (FX.pendHand.has(id)) revealHand([id]); }
+  await sleep(500);
+  unsay();
+}
+
+async function stepSecret(Vs, e) {
+  const g = geo(), mine = e.p === Vs.seat, src = mine ? g.me : g.op, dst = g.slot(mine ? 3 : 1);
+  say('✉️', `${whoV(Vs, e.p)}使用【秘密贈與】`, mine ? '1 張蓋著放一旁，結算時才翻開、算進你這邊' : '1 張蓋著放一旁（內容保密），結算時才翻開', mine ? 'me' : 'op');
+  const c = fcard(mine && e.ty != null ? e.ty : null, src.x, src.y, g.fw);
+  mv(c, g.cx, g.cy, 1.35, 0, 1, 560); await sleep(700);
+  if (mine && e.ty != null) { await flip(c, null); }
+  await sleep(250);
+  mv(c, dst.x, dst.y, .42, 0, .95, 620); await sleep(700);
+  c.remove(); unsay();
+}
+
+async function stepDiscard(Vs, e) {
+  const g = geo(), mine = e.p === Vs.seat, src = mine ? g.me : g.op, dst = g.slot(mine ? 4 : 2);
+  say('🗑️', `${whoV(Vs, e.p)}使用【無籍銷賬】`, '2 張蓋著放一旁，本局完全不計分', mine ? 'me' : 'op');
+  const cs = [0, 1].map(k => fcard(mine && e.ty ? e.ty[k] : null, src.x, src.y, g.fw));
+  cs.forEach((c, k) => mv(c, g.cx + (k - .5) * g.fw * 1.2, g.cy, 1.15, 0, 1, 560));
+  await sleep(750);
+  if (mine && e.ty) { await Promise.all(cs.map((c, k) => flip(c, null))); }
+  await sleep(250);
+  cs.forEach((c, k) => mv(c, dst.x + (k ? .3 : -.3) * 12, dst.y, .42, 0, .95, 620)); await sleep(700);
+  rmAll(cs); unsay();
+}
+
+async function stepGift(Vs, e) {
+  const g = geo(), mine = e.p === Vs.seat, src = mine ? g.me : g.op;
+  const resp = mine ? Vs.names[1 - Vs.seat] : '你';
+  say('🤝', `${whoV(Vs, e.p)}使用【經費共用】`, `公開 3 張 ・ ${resp}先選 1 張，剩下 2 張歸${mine ? '你' : whoV(Vs, e.p)}`, mine ? 'me' : 'op');
+  const cs = e.ty.map(t => fcard(t, src.x, src.y, g.fw));
+  cs.forEach((c, k) => mv(c, g.cx + (k - 1) * g.fw * 1.18, g.cy, 1.2, (k - 1) * 3, 1, 600));
+  await sleep(1900);
+  cs.forEach(c => mv(c, parseFloat(c.style.left), g.cy - 20, .9, 0, 0, 300)); await sleep(320);
+  rmAll(cs); unsay();
+}
+
+async function stepCompete(Vs, e) {
+  const g = geo(), mine = e.p === Vs.seat, src = mine ? g.me : g.op;
+  const resp = mine ? Vs.names[1 - Vs.seat] : '你';
+  say('💰', `${whoV(Vs, e.p)}使用【公費贈予】`, `公開 4 張分成 2 組 ・ ${resp}先選 1 組，剩下一組歸${mine ? '你' : whoV(Vs, e.p)}`, mine ? 'me' : 'op');
+  const cs = [], boxes = [];
+  e.ty.forEach((grp, gi) => {
+    const gx = g.cx + (gi ? 1 : -1) * g.fw * 1.1;
+    grp.forEach((t, k) => { const c = fcard(t, src.x, src.y, g.fw); cs.push(c); mv(c, gx + (k - .5) * g.fw * 1.05, g.cy, 1.1, (k - .5) * 4, 1, 600); });
+    const b = document.createElement('div'); b.className = 'gbox'; b.textContent = `第 ${gi + 1} 組`;
+    b.style.left = gx + 'px'; b.style.top = (g.cy + g.fw * 0.95) + 'px'; $('#cine').appendChild(b); boxes.push(b);
+  });
+  await sleep(2200);
+  cs.forEach(c => { c.style.transition = 'opacity .3s'; c.style.opacity = 0; }); rmAll(boxes); await sleep(320);
+  rmAll(cs); unsay();
+}
+
+async function stepPick(Vs, e) {
+  const g = geo(), isGift = e.k === 'pickGift';
+  const chooser = e.p, prop = 1 - e.p;
+  const cs = e.p === Vs.seat ? 'me' : 'op', ps = cs === 'me' ? 'op' : 'me';
+  const mine = chooser === Vs.seat;
+  const chosenTys = isGift ? [e.ty] : e.ty, restTys = e.rest;
+  const names = chosenTys.map(t => TYPES[t].name).join('、');
+  say('✅', `${whoV(Vs, chooser)}選了【${names}】`, `歸${whoV(Vs, chooser)}；其餘 ${restTys.length} 張歸${whoV(Vs, prop)}`, mine ? 'me' : 'op');
+  // 在中央排出：[其餘 | 選走]
+  const all = [];
+  const layout = isGift ? [{ t: restTys[0], ch: false }, { t: chosenTys[0], ch: true }, { t: restTys[1], ch: false }]
+    : [{ t: restTys[0], ch: false }, { t: restTys[1], ch: false }, { t: chosenTys[0], ch: true }, { t: chosenTys[1], ch: true }];
+  const n = layout.length, gap = g.fw * (isGift ? 1.18 : 1.02);
+  layout.forEach((it, k) => {
+    const c = fcard(it.t, it.ch ? (g.cx + (k - (n - 1) / 2) * gap) : (g.cx + (k - (n - 1) / 2) * gap), g.cy, g.fw, it.ch ? 'gl' : 'dim');
+    all.push({ c, ...it });
+    mv(c, g.cx + (k - (n - 1) / 2) * gap, g.cy, 1.05, 0, 1, 450);
+  });
+  await sleep(1100);
+  // 飛向各自歸屬
+  const used = new Set();
+  all.forEach(({ c, t, ch }) => {
+    const side = ch ? cs : ps, el = findPend(t, side, used);
+    c._el = el;
+    let tx, ty, sc = .5;
+    if (el) { const r = ctr(el); tx = r.x; ty = r.y; sc = Math.max(.3, r.w / g.fw); }
+    else { const r = ctr(ST.cols[t].g); tx = r.x; ty = r.y + (side === 'me' ? 1 : -1) * r.h * 0.9; }
+    mv(c, tx, ty, sc, 0, 1, 700);
+    c.classList.remove('gl', 'dim');
+  });
+  await sleep(760);
+  all.forEach(({ c }) => { showItem(c._el); c.remove(); });
+  await sleep(450);
+  unsay();
+}
+
+// ---- 結算 ----
+async function stepSettle(Vs) {
+  const g = geo(), m = Vs.seat, o = 1 - m, r = Vs.result;
+  FX.holdResult = true;
+  const side = x => x === null ? 'mid' : (x === m ? 'me' : 'op');
+  // 1. 翻開秘密贈與
+  say('🔓', '本局結算：翻開秘密贈與', '雙方的秘密贈與同時翻開、算進各自這邊（無籍銷賬的牌不計分）', '');
+  await sleep(700);
+  const used = new Set(), ghosts = [];
+  [[m, 'me', 3], [o, 'op', 1]].forEach(([p, s, slot]) => {
+    const secT = p === m ? (Vs.me.secret != null ? CARD_TYPE[Vs.me.secret] : null) : (Vs.op.secret != null ? CARD_TYPE[Vs.op.secret] : null);
+    if (secT == null) return;
+    const st = g.slot(slot), c = fcard(null, st.x, st.y, g.fw * .5); c._t = secT; c._s = s; ghosts.push(c);
+    mv(c, st.x, st.y, 1, 0, 1, 200);
+  });
+  await sleep(300);
+  for (const c of ghosts) {
+    mv(c, g.cx + (c._s === 'me' ? 1 : -1) * g.fw * .8, g.cy, 1.9, 0, 1, 450);
+  }
+  await sleep(520);
+  await Promise.all(ghosts.map(c => flip(c, c._t)));
+  await sleep(700);
+  ghosts.forEach(c => {
+    const el = findPend(c._t, c._s, used);
+    c._el = el;
+    if (el) { const rr = ctr(el); mv(c, rr.x, rr.y, Math.max(.3, rr.w / (g.fw * .5)), 0, 1, 650); }
+    else mv(c, g.cx, g.cy, .3, 0, 0, 400);
+  });
+  await sleep(700);
+  ghosts.forEach(c => { showItem(c._el); c.remove(); });
+  await sleep(350);
+  // 2. 逐位軍官比較
+  for (let i = 0; i < 7; i++) {
+    const row = r.rows[i], T = TYPES[i], a = row.c[m], b = row.c[o];
+    const col = ST.cols[i];
+    col.g.classList.add('hl');
+    col.me.forEach(e => e.classList.add('hlm')); col.op.forEach(e => e.classList.add('hlo'));
+    let res, tone;
+    if (a > b) { res = row.before === m ? '你守住' : '你奪得'; tone = 'me'; }
+    else if (a < b) { res = row.before === o ? '對手守住' : '對手奪得'; tone = 'op'; }
+    else { res = row.after === null ? '平手・無人持有' : '平手・標記不動'; tone = ''; }
+    say('⚖️', `${T.off}（能力 ${T.charm}）`, `你 ${a} 張 ：${b} 張 ${Vs.names[o]} → ${res}`, tone);
+    const gc = ctr(col.g), bub = document.createElement('div');
+    bub.className = 'cmpb ' + tone;
+    bub.innerHTML = `<b><span class="nm1">${a}</span> : <span class="nm2">${b}</span></b><small>${res}</small>`;
+    bub.style.left = gc.x + 'px'; bub.style.top = gc.y + 'px'; $('#cine').appendChild(bub);
+    await sleep(450);
+    applyTok(i, side(row.after), true); ST.dispFav[i] = row.after; renderPlayers();
+    await sleep(750);
+    bub.remove();
+    col.g.classList.remove('hl'); col.me.forEach(e => e.classList.remove('hlm')); col.op.forEach(e => e.classList.remove('hlo'));
+  }
+  // 3. 總結
+  const sum = `你 ${r.n[m]} 位・${r.c[m]} 分 ｜ ${Vs.names[o]} ${r.n[o]} 位・${r.c[o]} 分`;
+  if (Vs.phase === 'gameEnd') {
+    const w = Vs.winner;
+    say('🏆', w === 'tie' ? '平手！' : (w === m ? '你獲勝了！' : `${Vs.names[w]} 獲勝`), `${r.reason} ・ ${sum}`, w === m ? 'me' : 'op');
+    await sleep(2200);
+  } else {
+    say('📊', '本局結算完成', sum + ' ・ 沒人達標，進入下一局', '');
+    await sleep(1800);
+  }
+  unsay();
+  FX.holdResult = false; FX.deferTok = false;
+}
+
+document.addEventListener('click', e => { if (e.target.closest('#fxSkip')) skipFx(); });
+
 // ===================== 圖示（自繪，非官方卡面） =====================
 const ICON = [
   // A 茶具
@@ -870,7 +1268,7 @@ function toast(msg, ms) {
 function show(id) { $$('.screen').forEach(x => x.classList.toggle('on', x.id === id)); window.scrollTo(0, 0); }
 function openModal(id) { $('#' + id).classList.add('on'); }
 function closeModal(id) { $('#' + id).classList.remove('on'); }
-const tn = t => `<span class="tag" style="--c:${TYPES[t].color}">${TYPES[t].code}${TYPES[t].name}</span>`;
+const tn = t => `<span class="tag" style="--c:${TYPES[t].color}">${TYPES[t].name}</span>`;
 const nameOf = p => V ? V.names[p] : '';
 const who = p => (V && p === V.seat) ? '你' : nameOf(p);
 
@@ -879,8 +1277,9 @@ function cardHTML(id, opt) {
   opt = opt || {};
   const t = CARD_TYPE[id], T = TYPES[t];
   const tag = opt.btn ? 'button' : 'div';
-  return `<${tag} class="card ${opt.cls || ''}" style="--c:${T.color}" data-id="${id}" ${opt.dis ? 'disabled' : ''} title="${T.code} ${T.name}（能力 ${T.charm}）">
-    <span class="n">${T.charm}</span>${ICON[t]}<span class="c">${T.code}</span><span class="t">${T.name}</span></${tag}>`;
+  const pend = typeof FX !== 'undefined' && FX.pendHand && FX.pendHand.has(id) ? ' pendh' : '';
+  return `<${tag} class="card ${opt.cls || ''}${pend}" style="--c:${T.color};background-image:url(items/${T.code}.jpg)" data-id="${id}" ${opt.dis ? 'disabled' : ''} title="${T.name}（能力 ${T.charm}）">
+    <span class="t">${T.name}</span></${tag}>`;
 }
 // ===================== 3D 牌桌（CSS 3D） =====================
 const NEUY = 0.36, GAP = 1.37, ITEM0 = 1.96, STEP = 0.32, TOKY = 1.19, PILEY = 3.75;
@@ -906,56 +1305,64 @@ function buildStage() {
   ST.cols = TYPES.map((_, i) => ({ g: $('#g' + i), tk: $('#tk' + i), op: [], me: [], nbo: $('#nbo' + i), nbm: $('#nbm' + i), side: 'mid' }));
   ST.built = true;
 }
-function mkItem(i, sign, k, animate) {
+function mkItem(i, sign, k, animate, pend, side) {
   const T = TYPES[i], el = document.createElement('div');
-  el.className = 'o i3' + (animate ? ' drop' : '');
-  el.style.cssText = `--c:${T.color};${pos(colX(i) + (i === 0 ? 1 : i === 6 ? -1 : 0) * .14 * k, sign * (ITEM0 + STEP * k), (0.06 + 0.035 * k).toFixed(3))};--spin:${(Math.random() * 40 - 20).toFixed(0)}deg;animation-delay:${animate ? (k * 0.08).toFixed(2) : 0}s`;
-  el.innerHTML = `<span class="n">${T.charm}</span>${ICON[i]}`;
-  if (animate) setTimeout(() => el.classList.remove('drop'), 1500);
+  el.className = 'o i3' + (pend ? ' pend' : (animate ? ' drop' : ''));
+  el.dataset.c = i; el.dataset.s = side;
+  const ix = colX(i) + (i === 0 ? 1 : i === 6 ? -1 : 0) * .14 * k;
+  el.style.cssText = `--c:${T.color};background-image:url(items/${T.code}.jpg);${pos(ix, sign * (ITEM0 + STEP * k), (0.06 + 0.035 * k).toFixed(3))};--spin:${(Math.random() * 40 - 20).toFixed(0)}deg;animation-delay:${animate && !pend ? (k * 0.08).toFixed(2) : 0}s`;
+  if (animate && !pend) setTimeout(() => el.classList.remove('drop'), 1500);
   return el;
+}
+function updNb(i, side) {
+  const col = ST.cols[i], arr = col[side], nb = side === 'op' ? col.nbo : col.nbm;
+  const n = arr.filter(e => !e.classList.contains('pend')).length;
+  nb.style.display = n > 0 ? '' : 'none'; nb.textContent = n;
 }
 function syncStack(i, side, n, animate) {
   const col = ST.cols[i], arr = col[side], sign = side === 'op' ? -1 : 1, org = $('#org');
+  const pend = !!animate && FX.pendNew;
   while (arr.length > n) arr.pop().remove();
-  while (arr.length < n) { const el = mkItem(i, sign, arr.length, animate); org.appendChild(el); arr.push(el); }
-  const nb = side === 'op' ? col.nbo : col.nbm;
-  nb.style.display = n > 0 ? '' : 'none'; nb.textContent = n;
+  while (arr.length < n) { const el = mkItem(i, sign, arr.length, animate, pend, side); org.appendChild(el); arr.push(el); }
+  updNb(i, side);
 }
-function pileCard(cls, x, y, z, txt, color) {
-  return `<div class="o pc ${cls}" style="${pos(x, y, z)};${color ? '--c:' + color : ''}">${txt || ''}</div>`;
+function pileCard(cls, x, y, z, txt, color, ty) {
+  const img = ty != null ? `background-image:url(items/${TYPES[ty].code}.jpg);background-size:cover;` : '';
+  return `<div class="o pc ${cls}" style="${pos(x, y, z)};${color ? '--c:' + color + ';' : ''}${img}"></div>`;
 }
 function renderPiles() {
   let h = '';
-  // 牌堆（對手側左上）
+  const rev = V.phase === 'settle' || V.phase === 'gameEnd';
   const layers = Math.min(4, Math.ceil(V.deckN / 2));
-  for (let k = 0; k < layers; k++) h += pileCard('', PX.deck, -PILEY, (-.02 + .04 * k).toFixed(2), k === layers - 1 ? V.deckN : '');
-  // 對手秘密贈與 / 無籍銷賬
-  const ro = V.op.secret != null;
-  if (V.op.hasSecret) h += ro ? pileCard('face', PX.sec, -PILEY, .02, TYPES[CARD_TYPE[V.op.secret]].code, TYPES[CARD_TYPE[V.op.secret]].color) : pileCard('r', PX.sec, -PILEY, .02);
+  for (let k = 0; k < layers; k++) h += pileCard('', PX.deck, -PILEY, (-.02 + .04 * k).toFixed(2));
+  if (V.op.hasSecret && !rev) h += pileCard('r', PX.sec, -PILEY, .02);
   if (V.op.discardN) for (let k = 0; k < V.op.discardN; k++) {
     const d = V.op.discard && V.op.discard[k] != null ? CARD_TYPE[V.op.discard[k]] : null;
-    h += d != null ? pileCard('face', PX.dis + (k ? .3 : -.3), -PILEY, .02 + .04 * k, TYPES[d].code, TYPES[d].color) : pileCard('r', PX.dis + (k ? .3 : -.3), -PILEY, .02 + .04 * k);
+    h += d != null ? pileCard('face', PX.dis + (k ? .3 : -.3), -PILEY, .02 + .04 * k, '', TYPES[d].color, d) : pileCard('r', PX.dis + (k ? .3 : -.3), -PILEY, .02 + .04 * k);
   }
-  // 我的秘密贈與 / 無籍銷賬（我看得到內容）
-  if (V.me.secret != null) { const t = CARD_TYPE[V.me.secret]; h += pileCard('face', PX.sec, PILEY, .02, TYPES[t].code, TYPES[t].color); }
-  V.me.discard.forEach((id, k) => { const t = CARD_TYPE[id]; h += pileCard('face', PX.dis + (k ? .3 : -.3), PILEY, .02 + .04 * k, TYPES[t].code, TYPES[t].color); });
+  if (V.me.secret != null && !rev) { const t = CARD_TYPE[V.me.secret]; h += pileCard('face', PX.sec, PILEY, .02, '', TYPES[t].color, t); }
+  V.me.discard.forEach((id, k) => { const t = CARD_TYPE[id]; h += pileCard('face', PX.dis + (k ? .3 : -.3), PILEY, .02 + .04 * k, '', TYPES[t].color, t); });
   $('#piles').innerHTML = h;
 }
+function applyTok(i, side, hop) {
+  const col = ST.cols[i];
+  col.g.dataset.o = side; col.tk.dataset.o = side;
+  if (col.side !== side) {
+    const y = side === 'mid' ? NEUY : (side === 'me' ? TOKY : -TOKY);
+    col.tk.style.setProperty('--y', y);
+    if (hop) { col.tk.classList.remove('hop'); void col.tk.offsetWidth; col.tk.classList.add('hop'); }
+    col.side = side;
+  }
+}
+const favSide = (Vv, i) => { const o = Vv.fav[i]; return o === null ? 'mid' : (o === Vv.seat ? 'me' : 'op'); };
 function renderBoard() {
   if (!ST.built) buildStage();
   const fresh = !ST.last || V.round !== ST.last.round || V.seat !== ST.last.seat;
+  if (fresh || !ST.dispFav) ST.dispFav = V.fav.slice();
   for (let i = 0; i < 7; i++) {
-    const col = ST.cols[i];
     syncStack(i, 'op', V.op.pub[i], !fresh);
     syncStack(i, 'me', V.me.pub[i], !fresh);
-    const o = V.fav[i], side = o === null ? 'mid' : (o === V.seat ? 'me' : 'op');
-    col.g.dataset.o = side; col.tk.dataset.o = side;
-    if (col.side !== side) {
-      const y = side === 'mid' ? NEUY : (side === 'me' ? TOKY : -TOKY);
-      col.tk.style.setProperty('--y', y);
-      if (!fresh || ST.last) { col.tk.classList.remove('hop'); void col.tk.offsetWidth; col.tk.classList.add('hop'); }
-      col.side = side;
-    }
+    if (!FX.deferTok || fresh) { applyTok(i, favSide(V, i), !fresh || !!ST.last); ST.dispFav[i] = V.fav[i]; }
   }
   renderPiles();
   ST.last = { round: V.round, seat: V.seat };
@@ -993,7 +1400,7 @@ function fitStage() {
 function resetView() { ST.rx = ST.defRx; ST.rz = 0; ST.zoom = 1; applyView(); fitStage(); }
 function initStageControls() {
   const st = $('#stage'); let drag = null;
-  st.addEventListener('pointerdown', e => { ST.touched = true; drag = { x: e.clientX, y: e.clientY, rx: ST.rx, rz: ST.rz }; st.classList.add('drag'); try { st.setPointerCapture(e.pointerId); } catch (_) { } });
+  st.addEventListener('pointerdown', e => { if (e.target.closest('#fxSkip')) return; ST.touched = true; drag = { x: e.clientX, y: e.clientY, rx: ST.rx, rz: ST.rz }; st.classList.add('drag'); try { st.setPointerCapture(e.pointerId); } catch (_) { } });
   st.addEventListener('pointermove', e => {
     if (!drag) return;
     ST.rz = Math.max(-35, Math.min(35, drag.rz + (e.clientX - drag.x) * 0.25));
@@ -1007,15 +1414,15 @@ function initStageControls() {
   if (window.ResizeObserver) { let t; new ResizeObserver(() => { clearTimeout(t); t = setTimeout(fitStage, 60); }).observe(st); }
 }
 const ACT_ICON = { secret: '✉️', discard: '🗑️', gift: '🤝', compete: '💰' };
-const myTurn = () => V && V.phase === 'turn' && V.cur === V.seat;
-const iRespond = () => V && V.phase === 'respond' && V.pending.by !== V.seat;
+const myTurn = () => V && !FX.busy && V.phase === 'turn' && V.cur === V.seat;
+const iRespond = () => V && !FX.busy && V.phase === 'respond' && V.pending.by !== V.seat;
 
 function actChips(used) {
   return ACT_KEYS.map(k => `<span class="${used[k] ? 'used' : ''}" title="${ACTS[k].name}">${ACTS[k].name[0]}<i class="f" style="font-style:normal">${ACTS[k].name.slice(1)}</i></span>`).join('');
 }
 function scoreOf(side) {
   let n = 0, c = 0;
-  V.fav.forEach((o, i) => { if (o === side) { n++; c += TYPES[i].charm; } });
+  (ST.dispFav || V.fav).forEach((o, i) => { if (o === side) { n++; c += TYPES[i].charm; } });
   return `${n} 位 · ${c} 分`;
 }
 function renderPlayers() {
@@ -1114,6 +1521,7 @@ function renderActs() {
 }
 function renderResult() {
   const md = $('#resultSheet');
+  if (FX.holdResult) return;
   if (V.phase !== 'settle' && V.phase !== 'gameEnd') { closeModal('mdResult'); return; }
   const r = V.result, m = V.seat, o = 1 - V.seat;
   const side = x => x === null ? 'mid' : (x === m ? 'me' : 'op');
@@ -1156,6 +1564,7 @@ function logLine(e) {
 }
 function render() {
   if (!V) return;
+  fxObserve();
   show('game');
   const g = $('#game');
   g.classList.toggle('tray-offer', offerVisible() && !ui.showHand);
@@ -1163,6 +1572,7 @@ function render() {
   renderTop(); renderPlayers(); renderBoard(); renderStatus(); renderBanner(); renderOffer(); renderHand(); renderActs(); renderResult();
   if (!ST.fitted) { ST.fitted = true; requestAnimationFrame(fitStage); }
   if ($('#mdLog').classList.contains('on')) $('#logbox').innerHTML = V.log.map(logLine).join('');
+  if (FX.q.length && !FX.busy) setTimeout(fxRun, 0);
 }
 
 // ===================== 操作 =====================
@@ -1247,23 +1657,25 @@ function afterChange() {
   render();
   const a = actorOf(S);
   if (a !== null && CFG.ai[a]) {
-    aiTimer = setTimeout(() => {
+    const aiGo = () => {
       if (!S) return;
+      if (FX.busy || FX.q.length) { aiTimer = setTimeout(aiGo, 250); return; }
       const seat = actorOf(S);
       if (seat === null || !CFG.ai[seat]) return;
       const r = act(S, seat, aiAction(S, seat, CFG.level));
       if (!r.ok) console.warn('AI illegal', r.err);
       afterChange();
-    }, 850 + Math.random() * 650);
+    };
+    aiTimer = setTimeout(aiGo, 850 + Math.random() * 650);
   }
 }
 function startLocalGame() {
-  resetUI(); closeModal('mdResult');
+  fxReset(); resetUI(); closeModal('mdResult');
   S = newGame({ rounds3: CFG.rounds3 });
   afterChange();
 }
 function quitToMenu() {
-  clearTimeout(aiTimer); S = null; V = null; resetUI();
+  fxReset(); clearTimeout(aiTimer); S = null; V = null; resetUI();
   netClose();
   ['mdResult', 'mdMenu', 'mdLog'].forEach(closeModal);
   show('menu');
@@ -1486,7 +1898,8 @@ const RULES_HTML = `<h2>📖 花見小路 規則</h2>
 <p>若沒人達標：收回所有物品牌重新洗牌，<b>交換先手</b>，信任標記留在原位，繼續下一局。若選了「至多三局」，第三局後仍無人達標，先比能力值總和，再比各自擁有軍官的最高能力值，仍相同則平手。</p>
 <h3>💡 小提醒</h3>
 <ul><li>經費共用、公費贈予時，站在對手的角度想：「他拿哪個最痛？」</li><li>平手標記不動 —— 守住已有的軍官，有時只需要打平。</li><li>5 分軍官有 5 張牌，拿到 3 張就足以確保，之後再多都是浪費。</li></ul>
-<p class="note">卡面圖示為自繪示意，非官方美術。規則依官方 2018 繁體中文版整理。</p>
+<p class="note">七種物品：18天生啤酒（2）、iPhone Duo（2）、RM機械表（2）、瑪莎拉蒂鑰匙（3）、豪宅所有權狀（3）、國防採購合約（4）、政治獻金（5），分別適配連士督、排長、作戰官、參謀主任、營長、處長、總司令。</p>
+<p class="note">卡面為使用者提供的圖片。規則依官方 2018 繁體中文版整理。</p>
 <div style="text-align:right;margin-top:10px"><button class="btn" data-close>關閉</button></div>`;
 
 // ===================== 初始化 =====================
@@ -1515,10 +1928,12 @@ function init() {
   $('#btnFS').onclick = toggleFS;
   $('#btnResetView').onclick = () => { resetView(); fitStage(); closeModal('mdMenu'); };
   $('#btnOrientGo').onclick = () => { orientDismissed = true; checkOrient(); };
+  seg('#segAnim', v => { ANIM.mode = v; try { localStorage.setItem('hk-anim', v); } catch (e) { } });
   seg('#segDev', v => { PREF.dev = v; try { localStorage.setItem('hk-dev', v); } catch (e) { } applyDevice(); openSettings(); });
   document.addEventListener('fullscreenchange', () => { updateFSBtn(); setTimeout(fitStage, 80); });
   window.addEventListener('resize', () => { checkOrient(); });
   window.addEventListener('orientationchange', () => setTimeout(() => { checkOrient(); fitStage(); }, 200));
+  try { const m = localStorage.getItem('hk-anim'); if (m === 'full' || m === 'fast' || m === 'off') { ANIM.mode = m; $$('#segAnim button').forEach(b => b.classList.toggle('on', b.dataset.v === m)); } } catch (e) { }
   try { const d = localStorage.getItem('hk-dev'); if (d === 'mobile' || d === 'desktop') PREF.dev = d; } catch (e) { }
   applyDevice();
   $('#btnRestart').onclick = () => { closeModal('mdMenu'); if (CFG.mode === 'guest') return; startLocalGame(); };
