@@ -143,22 +143,16 @@ body.mobile .mk span{min-width:24px;text-align:center;padding:1px 3px}
 .felt-lb{position:absolute;left:0;right:0;text-align:center;font:700 calc(var(--u)*.2)/1 var(--serif);letter-spacing:.4em;color:rgba(230,189,92,.4)}
 .felt-lb.t{top:calc(var(--u)*.14)} .felt-lb.b{bottom:calc(var(--u)*.14)}
 
-.g3{width:calc(var(--u)*1.08);height:calc(var(--u)*1.55);--z:.07;border-radius:calc(var(--u)*.09);
-  background:linear-gradient(170deg,color-mix(in srgb,var(--c) 70%,#fff 20%),var(--c) 45%,color-mix(in srgb,var(--c) 45%,#000));
-  border:calc(var(--u)*.03) solid rgba(255,255,255,.6)}
-.g3::before,.g3::after{content:"";position:absolute;inset:calc(var(--u)*-.03);border-radius:inherit}
+.g3{width:calc(var(--u)*1.18);height:calc(var(--u)*1.77);--z:.07;border-radius:calc(var(--u)*.07);background-color:#222;background-size:cover;background-position:center;
+  border:calc(var(--u)*.02) solid rgba(0,0,0,.6)}
+.g3::before,.g3::after{content:"";position:absolute;inset:calc(var(--u)*-.02);border-radius:inherit}
 .g3::before{background:#201810;transform:translateZ(calc(var(--u)*-.04))}
 .g3::after{background:#46331f;transform:translateZ(calc(var(--u)*-.08));box-shadow:0 0 calc(var(--u)*.3) rgba(0,0,0,.7)}
 .g3[data-o=me]{outline:calc(var(--u)*.05) solid rgba(230,189,92,.95)}
 .g3[data-o=op]{outline:calc(var(--u)*.05) solid rgba(226,112,95,.95)}
-.g3 .badge{position:absolute;left:calc(var(--u)*-.06);top:calc(var(--u)*-.06);width:calc(var(--u)*.4);height:calc(var(--u)*.4);border-radius:50%;background:var(--paper);color:#222;
-  font:900 calc(var(--u)*.28)/1 var(--serif);display:grid;place-items:center;border:calc(var(--u)*.03) solid var(--c);z-index:2}
-.g3 .fig{position:absolute;left:6%;right:6%;top:8%;bottom:24%}
-.g3 .fig svg{width:100%;height:100%}
-.g3 .ico{position:absolute;right:5%;top:4%;width:calc(var(--u)*.3);height:calc(var(--u)*.3);color:#fff;filter:none}
-.g3 .nmz{position:absolute;left:0;right:0;bottom:0;height:23%;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  background:rgba(0,0,0,.5);border-radius:0 0 calc(var(--u)*.06) calc(var(--u)*.06);font-size:calc(var(--u)*.2);line-height:1.1;font-weight:700;text-align:center;white-space:nowrap}
-.g3 .nmz small{font-size:.72em;opacity:.8;font-weight:400}
+.g3 .nmz{position:absolute;left:0;right:0;bottom:0;height:17%;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:linear-gradient(0deg,rgba(0,0,0,.82),rgba(0,0,0,.6));border-radius:0 0 calc(var(--u)*.06) calc(var(--u)*.06);font-size:calc(var(--u)*.22);line-height:1.1;font-weight:700;text-align:center;white-space:nowrap;color:#fff;text-shadow:0 1px 2px #000}
+.g3 .nmz small{font-size:.58em;opacity:.8;font-weight:400}
 .i3{width:calc(var(--u)*.64);height:calc(var(--u)*.92);border-radius:calc(var(--u)*.07);
   background:linear-gradient(165deg,color-mix(in srgb,var(--c) 75%,#fff 18%),var(--c) 50%,color-mix(in srgb,var(--c) 50%,#000));
   border:calc(var(--u)*.025) solid rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;color:#fff}
@@ -396,13 +390,13 @@ table.res{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0}
 <script>
 // ===================== 規則引擎（純資料，無 DOM） =====================
 const TYPES = [
-  { code: 'A', name: '茶具', charm: 2, color: '#2f9c95' },
-  { code: 'B', name: '髮簪', charm: 2, color: '#d9729f' },
-  { code: 'C', name: '摺扇', charm: 2, color: '#dd8a2e' },
-  { code: 'D', name: '油紙傘', charm: 3, color: '#7d5fc9' },
-  { code: 'E', name: '手鞠', charm: 3, color: '#5f9f4a' },
-  { code: 'F', name: '橫笛', charm: 4, color: '#3f78bd' },
-  { code: 'G', name: '三味線', charm: 5, color: '#bf3f36' },
+  { code: 'A', name: '茶具', off: '連士督', charm: 2, color: '#2f9c95' },
+  { code: 'B', name: '髮簪', off: '排長', charm: 2, color: '#d9729f' },
+  { code: 'C', name: '摺扇', off: '作戰官', charm: 2, color: '#dd8a2e' },
+  { code: 'D', name: '油紙傘', off: '參謀主任', charm: 3, color: '#7d5fc9' },
+  { code: 'E', name: '手鞠', off: '營長', charm: 3, color: '#5f9f4a' },
+  { code: 'F', name: '橫笛', off: '處長', charm: 4, color: '#3f78bd' },
+  { code: 'G', name: '三味線', off: '總司令', charm: 5, color: '#bf3f36' },
 ];
 const CARD_TYPE = [];
 TYPES.forEach((t, i) => { for (let k = 0; k < t.charm; k++) CARD_TYPE.push(i); });
@@ -783,7 +777,7 @@ function cardHTML(id, opt) {
     <span class="n">${T.charm}</span>${ICON[t]}<span class="c">${T.code}</span><span class="t">${T.name}</span></${tag}>`;
 }
 // ===================== 3D 牌桌（CSS 3D） =====================
-const NEUY = 0.22, GAP = 1.2, ITEM0 = 1.83, STEP = 0.32, TOKY = 1.08, PILEY = 4.02;
+const NEUY = 0.36, GAP = 1.37, ITEM0 = 1.96, STEP = 0.32, TOKY = 1.19, PILEY = 4.02;
 const colX = i => (i - 3) * GAP;
 const ST = { cols: [], built: false, rx: 44, rz: 0, zoom: 1, defRx: 44, last: null, piles: {} };
 const pos = (x, y, z) => `--x:${x};--y:${y};--z:${z}`;
@@ -792,8 +786,7 @@ function buildStage() {
   let h = `<div class="o" id="wood" style="${pos(0, 0, 0)};--z:-.22"></div>
     <div class="o" id="felt" style="${pos(0, 0, 0)};--z:-.12"><span class="felt-lb t">對　手</span><span class="felt-lb b">你</span></div>`;
   TYPES.forEach((T, i) => {
-    h += `<div class="o g3" id="g${i}" style="--c:${T.color};${pos(colX(i), 0, .07)}" data-o="mid"><span class="badge">${T.charm}</span><span class="ico">${ICON[i]}</span>
-      <div class="fig">${figSVG(T.color)}</div><div class="nmz">${T.name}<small>軍官 ${T.code}</small></div></div>`;
+    h += `<div class="o g3" id="g${i}" style="--c:${T.color};background-image:url(cards/${T.code}.jpg);${pos(colX(i), 0, .07)}" data-o="mid" title="${T.code} ${T.off}（能力 ${T.charm}）"><div class="nmz">${T.off}<small>軍官 ${T.code}</small></div></div>`;
     h += `<div class="o tok" id="tk${i}" data-o="mid" style="${pos(colX(i), NEUY, .3)}">★</div>`;
     h += `<div class="o nb" id="nbo${i}" style="${pos(colX(i) + .52, -1.62, .14)};display:none"></div>`;
     h += `<div class="o nb" id="nbm${i}" style="${pos(colX(i) + .52, 1.62, .14)};display:none"></div>`;
@@ -1013,7 +1006,7 @@ function renderResult() {
     if (af === 'me') res = bf === 'me' ? '<span class="win">守住 ✓</span>' : '<span class="win">奪得 ✓</span>';
     else if (af === 'op') res = bf === 'op' ? '<span class="lose">對手持有</span>' : '<span class="lose">對手奪得</span>';
     else res = '<span class="keep">中立</span>';
-    return `<tr><td class="g" style="--c:${T.color}"><span class="sw"></span>${T.code} ${T.name}（${T.charm}）</td>
+    return `<tr><td class="g" style="--c:${T.color}"><span class="sw"></span>${T.code} ${T.off}（${T.charm}）</td>
       <td>${a}${row.sec[m] ? '<small title="含秘密贈與"> ◆</small>' : ''}</td><td>${b}${row.sec[o] ? '<small title="含秘密贈與"> ◆</small>' : ''}</td><td>${res}</td></tr>`;
   }).join('');
   let head = `<h2>第 ${V.round} 局結算</h2>`;
