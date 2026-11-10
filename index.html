@@ -235,10 +235,11 @@ body.mobile #hand .card .t{font-size:9px}
 
 .actbar{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .act{border:1px solid rgba(230,189,92,.55);background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.03));border-radius:12px;padding:7px 4px;text-align:center;transition:.15s;min-width:0}
-.act b{display:block;font:700 clamp(14px,1.5vw,18px) var(--serif);color:var(--gold)}
+.act .ai{display:block;font-style:normal;font-size:17px;line-height:1.15}
+.act b{display:block;font:700 clamp(12px,1.1vw,17px) var(--serif);color:var(--gold);white-space:nowrap}
 .act small{display:block;font-size:11.5px;opacity:.8;margin-top:2px;line-height:1.35}
 body.mobile .act small{font-size:10.5px;line-height:1.25}
-@media (max-height:860px){body.mobile .act small{display:none}}
+body.mobile .act small{display:none}
 .act:hover:not(:disabled){background:rgba(230,189,92,.2)}
 .act.on{background:var(--gold);color:#2a1c00;border-color:#fff2c0;box-shadow:0 0 16px rgba(230,189,92,.5)}
 .act.on b,.act.on small{color:#2a1c00}
@@ -406,10 +407,10 @@ const TYPES = [
 const CARD_TYPE = [];
 TYPES.forEach((t, i) => { for (let k = 0; k < t.charm; k++) CARD_TYPE.push(i); });
 const ACTS = {
-  secret: { name: '密約', n: 1, desc: '蓋 1 張，結算時才算進你這邊' },
-  discard: { name: '取捨', n: 2, desc: '蓋 2 張，本局完全不計分' },
-  gift: { name: '贈予', n: 3, desc: '公開 3 張，對手先拿 1 張' },
-  compete: { name: '競爭', n: 4, desc: '分成 2 組，對手先拿 1 組' },
+  secret: { name: '秘密贈與', n: 1, desc: '蓋 1 張，結算時才算進你這邊' },
+  discard: { name: '無籍銷賬', n: 2, desc: '蓋 2 張，本局完全不計分' },
+  gift: { name: '經費共用', n: 3, desc: '公開 3 張，對手先拿 1 張' },
+  compete: { name: '公費贈予', n: 4, desc: '分成 2 組，對手先拿 1 組' },
 };
 const ACT_KEYS = ['secret', 'discard', 'gift', 'compete'];
 
@@ -489,11 +490,11 @@ function settle(s) {
     if (o !== null) { n[o]++; c[o] += TYPES[i].charm; mx[o] = Math.max(mx[o], TYPES[i].charm); }
   }
   let w = null, reason = '';
-  if (c[0] >= 11 || c[1] >= 11) { w = c[0] >= 11 ? 0 : 1; reason = '魅力值達到 11 點'; }
-  else if (n[0] >= 4 || n[1] >= 4) { w = n[0] >= 4 ? 0 : 1; reason = '取得 4 位藝者'; }
+  if (c[0] >= 11 || c[1] >= 11) { w = c[0] >= 11 ? 0 : 1; reason = '能力值達到 11 點'; }
+  else if (n[0] >= 4 || n[1] >= 4) { w = n[0] >= 4 ? 0 : 1; reason = '取得 4 位軍官'; }
   else if (s.mode3 && s.round >= 3) {
-    if (c[0] !== c[1]) { w = c[0] > c[1] ? 0 : 1; reason = '三局結束，魅力值總和較高'; }
-    else if (mx[0] !== mx[1]) { w = mx[0] > mx[1] ? 0 : 1; reason = '三局結束，魅力值同分，比最高魅力值'; }
+    if (c[0] !== c[1]) { w = c[0] > c[1] ? 0 : 1; reason = '三局結束，能力值總和較高'; }
+    else if (mx[0] !== mx[1]) { w = mx[0] > mx[1] ? 0 : 1; reason = '三局結束，能力值同分，比最高能力值'; }
     else { w = 'tie'; reason = '三局結束，雙方完全同分'; }
   }
   s.result = { rows, n, c, w, reason };
@@ -737,12 +738,16 @@ const ICON = [
   '<svg viewBox="0 0 48 48"><g transform="rotate(38 24 24)"><rect x="14" y="27" width="20" height="17" rx="3.5" fill="currentColor"/><rect x="21.8" y="3" width="4.4" height="26" rx="1.5" fill="currentColor"/><rect x="17.5" y="2" width="13" height="5" rx="2.5" fill="currentColor"/><path d="M23 7v36M25 7v36" stroke="#000" stroke-opacity=".4" stroke-width="1"/><circle cx="24" cy="36" r="3" fill="#000" fill-opacity=".3"/></g></svg>',
 ];
 function figSVG(c) {
-  return `<svg viewBox="0 0 60 80" fill="none"><path d="M30 40c-14 0-17 14-19 40h38c-2-26-5-40-19-40z" fill="${c}" stroke="rgba(0,0,0,.35)" stroke-width="1.2"/>
-  <path d="M30 40c-5 8-5 20 0 40M30 40c5 8 5 20 0 40" stroke="rgba(255,255,255,.4)" stroke-width="1.2"/>
-  <path d="M24 40l6 14 6-14z" fill="#fff" opacity=".92"/><rect x="15" y="56" width="30" height="9" rx="2" fill="rgba(0,0,0,.42)"/><rect x="27" y="56" width="6" height="9" fill="rgba(255,235,170,.9)"/>
-  <ellipse cx="30" cy="21" rx="8.5" ry="10" fill="#f6dfcb"/><path d="M20 21c-2-12 6-18 10-18s12 6 10 18c-2-5-4-8-10-8s-8 3-10 8z" fill="#171220"/>
-  <circle cx="30" cy="8" r="2.6" fill="#e6bd5c"/><path d="M22 10l-6-3M38 10l6-3" stroke="#e6bd5c" stroke-width="1.6" stroke-linecap="round"/>
-  <path d="M27 24h1.2M32 24h1.2" stroke="#222" stroke-width="1.2" stroke-linecap="round"/><path d="M28.5 28.5q1.5 1 3 0" stroke="#b5483a" stroke-width="1.2" stroke-linecap="round"/></svg>`;
+  return `<svg viewBox="0 0 60 80" fill="none"><path d="M30 40c-14 0-19 12-20 40h40c-1-28-6-40-20-40z" fill="${c}" stroke="rgba(0,0,0,.45)" stroke-width="1.2"/>
+  <path d="M30 40l-8 4 8 16 8-16z" fill="rgba(255,255,255,.93)"/><path d="M30 46l-2.2 3 2.2 11 2.2-11z" fill="#8f1d1d"/>
+  <rect x="10.5" y="42" width="10" height="4.2" rx="1" fill="#e6bd5c" stroke="rgba(0,0,0,.3)" stroke-width=".5" transform="rotate(-20 15 44)"/>
+  <rect x="39.5" y="42" width="10" height="4.2" rx="1" fill="#e6bd5c" stroke="rgba(0,0,0,.3)" stroke-width=".5" transform="rotate(20 45 44)"/>
+  <circle cx="38.5" cy="58" r="2" fill="#e6bd5c" stroke="rgba(0,0,0,.35)" stroke-width=".5"/><circle cx="43" cy="60.5" r="1.7" fill="#dcdcdc"/><circle cx="19" cy="60" r="1.7" fill="#e6bd5c"/>
+  <circle cx="30" cy="66" r="1.3" fill="rgba(255,255,255,.7)"/><circle cx="30" cy="72" r="1.3" fill="rgba(255,255,255,.7)"/>
+  <rect x="25.5" y="28" width="9" height="8" rx="3" fill="#f1d3b8"/><ellipse cx="30" cy="22" rx="8.6" ry="9.4" fill="#f6dfcb"/>
+  <path d="M19.5 17c0-9 5-13.5 10.5-13.5S40.5 8 40.5 17z" fill="#26304f"/><rect x="18" y="15" width="24" height="3.6" rx="1.6" fill="#141a30"/><rect x="19.5" y="12.3" width="21" height="2.4" fill="#e6bd5c"/>
+  <circle cx="30" cy="8.6" r="2.3" fill="#e6bd5c" stroke="#8a6a1c" stroke-width=".5"/><path d="M30 7.2l.5 1.3 1.3.1-1 .9.3 1.3-1.1-.7-1.1.7.3-1.3-1-.9 1.3-.1z" fill="#c8473d"/>
+  <path d="M26.4 22.6h1.6M32 22.6h1.6" stroke="#222" stroke-width="1.3" stroke-linecap="round"/><path d="M27.8 27.4h4.4" stroke="#8a4a3a" stroke-width="1.2" stroke-linecap="round"/></svg>`;
 }
 
 // ===================== 狀態 =====================
@@ -774,11 +779,11 @@ function cardHTML(id, opt) {
   opt = opt || {};
   const t = CARD_TYPE[id], T = TYPES[t];
   const tag = opt.btn ? 'button' : 'div';
-  return `<${tag} class="card ${opt.cls || ''}" style="--c:${T.color}" data-id="${id}" ${opt.dis ? 'disabled' : ''} title="${T.code} ${T.name}（魅力 ${T.charm}）">
+  return `<${tag} class="card ${opt.cls || ''}" style="--c:${T.color}" data-id="${id}" ${opt.dis ? 'disabled' : ''} title="${T.code} ${T.name}（能力 ${T.charm}）">
     <span class="n">${T.charm}</span>${ICON[t]}<span class="c">${T.code}</span><span class="t">${T.name}</span></${tag}>`;
 }
 // ===================== 3D 牌桌（CSS 3D） =====================
-const GAP = 1.2, ITEM0 = 1.83, STEP = 0.32, TOKY = 1.08, PILEY = 4.02;
+const NEUY = 0.22, GAP = 1.2, ITEM0 = 1.83, STEP = 0.32, TOKY = 1.08, PILEY = 4.02;
 const colX = i => (i - 3) * GAP;
 const ST = { cols: [], built: false, rx: 44, rz: 0, zoom: 1, defRx: 44, last: null, piles: {} };
 const pos = (x, y, z) => `--x:${x};--y:${y};--z:${z}`;
@@ -788,13 +793,13 @@ function buildStage() {
     <div class="o" id="felt" style="${pos(0, 0, 0)};--z:-.12"><span class="felt-lb t">對　手</span><span class="felt-lb b">你</span></div>`;
   TYPES.forEach((T, i) => {
     h += `<div class="o g3" id="g${i}" style="--c:${T.color};${pos(colX(i), 0, .07)}" data-o="mid"><span class="badge">${T.charm}</span><span class="ico">${ICON[i]}</span>
-      <div class="fig">${figSVG(T.color)}</div><div class="nmz">${T.name}<small>藝者 ${T.code}</small></div></div>`;
-    h += `<div class="o tok" id="tk${i}" data-o="mid" style="${pos(colX(i), 0, .3)}">❀</div>`;
+      <div class="fig">${figSVG(T.color)}</div><div class="nmz">${T.name}<small>軍官 ${T.code}</small></div></div>`;
+    h += `<div class="o tok" id="tk${i}" data-o="mid" style="${pos(colX(i), NEUY, .3)}">★</div>`;
     h += `<div class="o nb" id="nbo${i}" style="${pos(colX(i) + .52, -1.62, .14)};display:none"></div>`;
     h += `<div class="o nb" id="nbm${i}" style="${pos(colX(i) + .52, 1.62, .14)};display:none"></div>`;
   });
-  // 牌堆 / 密約 / 取捨 欄位
-  const slots = [['牌堆', colX(0), -PILEY], ['密約', colX(1), -PILEY], ['取捨', colX(2), -PILEY], ['密約', colX(1), PILEY], ['取捨', colX(2), PILEY]];
+  // 牌堆 / 秘密贈與 / 無籍銷賬 欄位
+  const slots = [['牌堆', colX(0), -PILEY], ['秘密<br>贈與', colX(1), -PILEY], ['無籍<br>銷賬', colX(2), -PILEY], ['秘密<br>贈與', colX(1), PILEY], ['無籍<br>銷賬', colX(2), PILEY]];
   slots.forEach(([t, x, y], k) => { h += `<div class="o slot" style="${pos(x, y, -.1)}">${t}</div>`; });
   h += `<div id="piles"></div>`;
   $('#org').innerHTML = h;
@@ -824,14 +829,14 @@ function renderPiles() {
   // 牌堆（對手側左上）
   const layers = Math.min(4, Math.ceil(V.deckN / 2));
   for (let k = 0; k < layers; k++) h += pileCard('', colX(0), -PILEY, (-.02 + .04 * k).toFixed(2), k === layers - 1 ? V.deckN : '');
-  // 對手密約 / 取捨
+  // 對手秘密贈與 / 無籍銷賬
   const ro = V.op.secret != null;
   if (V.op.hasSecret) h += ro ? pileCard('face', colX(1), -PILEY, .02, TYPES[CARD_TYPE[V.op.secret]].code, TYPES[CARD_TYPE[V.op.secret]].color) : pileCard('r', colX(1), -PILEY, .02);
   if (V.op.discardN) for (let k = 0; k < V.op.discardN; k++) {
     const d = V.op.discard && V.op.discard[k] != null ? CARD_TYPE[V.op.discard[k]] : null;
     h += d != null ? pileCard('face', colX(2) + (k ? .3 : -.3), -PILEY, .02 + .04 * k, TYPES[d].code, TYPES[d].color) : pileCard('r', colX(2) + (k ? .3 : -.3), -PILEY, .02 + .04 * k);
   }
-  // 我的密約 / 取捨（我看得到內容）
+  // 我的秘密贈與 / 無籍銷賬（我看得到內容）
   if (V.me.secret != null) { const t = CARD_TYPE[V.me.secret]; h += pileCard('face', colX(1), PILEY, .02, TYPES[t].code, TYPES[t].color); }
   V.me.discard.forEach((id, k) => { const t = CARD_TYPE[id]; h += pileCard('face', colX(2) + (k ? .3 : -.3), PILEY, .02 + .04 * k, TYPES[t].code, TYPES[t].color); });
   $('#piles').innerHTML = h;
@@ -846,7 +851,7 @@ function renderBoard() {
     const o = V.fav[i], side = o === null ? 'mid' : (o === V.seat ? 'me' : 'op');
     col.g.dataset.o = side; col.tk.dataset.o = side;
     if (col.side !== side) {
-      const y = side === 'mid' ? 0 : (side === 'me' ? TOKY : -TOKY);
+      const y = side === 'mid' ? NEUY : (side === 'me' ? TOKY : -TOKY);
       col.tk.style.setProperty('--y', y);
       if (!fresh || ST.last) { col.tk.classList.remove('hop'); void col.tk.offsetWidth; col.tk.classList.add('hop'); }
       col.side = side;
@@ -891,6 +896,7 @@ function initStageControls() {
   st.addEventListener('wheel', e => { e.preventDefault(); ST.zoom = Math.max(0.7, Math.min(1.7, ST.zoom * (e.deltaY < 0 ? 1.08 : 0.93))); applyView(); }, { passive: false });
   if (window.ResizeObserver) { let t; new ResizeObserver(() => { clearTimeout(t); t = setTimeout(fitStage, 60); }).observe(st); }
 }
+const ACT_ICON = { secret: '✉️', discard: '🗑️', gift: '🤝', compete: '💰' };
 const myTurn = () => V && V.phase === 'turn' && V.cur === V.seat;
 const iRespond = () => V && V.phase === 'respond' && V.pending.by !== V.seat;
 
@@ -907,17 +913,17 @@ function renderPlayers() {
   const meAct = myTurn() || iRespond();
   let ob = ''; for (let i = 0; i < V.op.handN; i++) ob += '<i></i>';
   let opStash = '';
-  if (V.op.hasSecret) opStash += `<span class="stash"><i class="fc k"></i>密約</span>`;
-  if (V.op.discardN) opStash += `<span class="stash"><i class="fc"></i>取捨</span>`;
+  if (V.op.hasSecret) opStash += `<span class="stash"><i class="fc k"></i>秘密贈與</span>`;
+  if (V.op.discardN) opStash += `<span class="stash"><i class="fc"></i>無籍銷賬</span>`;
   $('#opp').className = 'player' + (opAct ? ' active' : '');
   $('#opp').innerHTML = `<div class="pl-r"><span class="nm">${esc(nameOf(1 - V.seat))}<small>${V.starter === 1 - V.seat ? '本局先手' : ''}</small></span><span class="sc">${scoreOf(1 - V.seat)}</span></div>
     <div class="pl-r"><div class="backs" title="對手手牌">${ob}</div><span class="hn">手牌 ${V.op.handN}</span>${opStash}<div class="mk">${actChips(V.op.used)}</div></div>`;
   let ms = '';
-  if (V.me.secret != null) ms += `<span class="stash">密約${tn(CARD_TYPE[V.me.secret])}</span>`;
-  if (V.me.discard.length) ms += `<span class="stash">取捨${V.me.discard.map(c => tn(CARD_TYPE[c])).join('')}</span>`;
+  if (V.me.secret != null) ms += `<span class="stash">秘密贈與${tn(CARD_TYPE[V.me.secret])}</span>`;
+  if (V.me.discard.length) ms += `<span class="stash">無籍銷賬${V.me.discard.map(c => tn(CARD_TYPE[c])).join('')}</span>`;
   $('#mePanel').className = 'player' + (meAct ? ' active' : '');
   $('#mePanel').innerHTML = `<div class="pl-r"><span class="nm">${esc(nameOf(V.seat))}（你）<small>${V.starter === V.seat ? '本局先手' : ''}</small></span><span class="sc">${scoreOf(V.seat)}</span></div>
-    <div class="pl-r">${ms || '<span class="hn">尚無密約／取捨</span>'}<div class="mk">${actChips(V.me.used)}</div></div>`;
+    <div class="pl-r">${ms || '<span class="hn">尚無秘密贈與／無籍銷賬</span>'}<div class="mk">${actChips(V.me.used)}</div></div>`;
 }
 function renderTop() {
   $('#topInfo').innerHTML = `<span class="chip gold">第 ${V.round} 局${V.mode3 ? ' / 3' : ''}</span><span class="chip">牌堆 ${V.deckN}</span>`;
@@ -931,7 +937,7 @@ function renderStatus() {
       else t = `${ACTS[ui.mode].name}：請選 ${ACTS[ui.mode].n} 張手牌（已選 ${ui.sel.length}）`;
     } else { t = `${nameOf(V.cur)} 思考中…`; wait = true; }
   } else if (V.phase === 'respond') {
-    if (iRespond()) t = V.pending.kind === 'gift' ? `${nameOf(V.pending.by)} 贈予了 3 張牌，請選 1 張` : `${nameOf(V.pending.by)} 提出競爭，請選 1 組`;
+    if (iRespond()) t = V.pending.kind === 'gift' ? `${nameOf(V.pending.by)} 使用經費共用，請從 3 張牌中選 1 張` : `${nameOf(V.pending.by)} 提出公費贈予，請選 1 組`;
     else { t = `等待 ${nameOf(1 - V.pending.by)} 選擇…`; wait = true; }
   } else if (V.phase === 'settle') t = '本局結算';
   else if (V.phase === 'gameEnd') t = '遊戲結束';
@@ -960,10 +966,10 @@ function renderOffer0(el) {
   if (V.pending) {
     const pd = V.pending, mine = pd.by === V.seat, resp = !mine;
     if (pd.kind === 'gift') {
-      el.innerHTML = `<div class="offer"><h4>${mine ? tt('你贈予的 3 張牌（對手先選 1 張）', '你贈予的 3 張（等對手選 1 張）') : tt(`${esc(nameOf(pd.by))} 贈予的 3 張牌 — 選 1 張，其餘 2 張歸對方`, '選 1 張（其餘 2 張歸對方）')}</h4><div class="cards">` +
+      el.innerHTML = `<div class="offer"><h4>${mine ? tt('你的經費共用 3 張牌（對手先選 1 張）', '你的經費共用（等對手選 1 張）') : tt(`${esc(nameOf(pd.by))} 的經費共用 3 張牌 — 選 1 張，其餘 2 張歸對方`, '選 1 張（其餘 2 張歸對方）')}</h4><div class="cards">` +
         pd.cards.map(id => cardHTML(id, { btn: 1, dis: !resp, cls: (resp ? 'pickable ' : '') + (ui.pick === id ? 'sel' : '') })).join('') + `</div></div>`;
     } else {
-      el.innerHTML = `<div class="offer"><h4>${mine ? tt('你提出的競爭（對手先選 1 組）', '你的競爭（等對手選 1 組）') : tt(`${esc(nameOf(pd.by))} 提出的競爭 — 選 1 組，另一組歸對方`, '選 1 組（另一組歸對方）')}</h4><div class="groups">` +
+      el.innerHTML = `<div class="offer"><h4>${mine ? tt('你的公費贈予（對手先選 1 組）', '你的公費贈予（等對手選 1 組）') : tt(`${esc(nameOf(pd.by))} 的公費贈予 — 選 1 組，另一組歸對方`, '選 1 組（另一組歸對方）')}</h4><div class="groups">` +
         pd.groups.map((g, gi) => `<div class="grp ${resp ? 'pick' : ''} ${ui.pickG === gi ? 'chosen' : ''}" data-grp="${gi}"><span class="gl">第${gi + 1}組</span>${g.map(id => cardHTML(id, { cls: 'sm' })).join('')}</div>`).join('') + `</div></div>`;
     }
     return;
@@ -984,7 +990,7 @@ function renderHand() {
 function renderActs() {
   const turn = myTurn();
   $('#actbar').innerHTML = ACT_KEYS.map(k => `<button class="act ${ui.mode === k ? 'on' : ''} ${V.me.used[k] ? 'used' : ''}" data-act="${k}" ${(!turn || V.me.used[k] || (ui.mode && ui.step === 'group')) ? 'disabled' : ''}>
-    <b>${ACTS[k].name} ${ACTS[k].n}</b><small>${ACTS[k].desc}</small></button>`).join('');
+    <i class="ai">${ACT_ICON[k]}</i><b>${ACTS[k].name} ${ACTS[k].n}</b><small>${ACTS[k].desc}</small></button>`).join('');
   let c = '';
   if (turn && ui.mode) {
     const n = ACTS[ui.mode].n;
@@ -1008,7 +1014,7 @@ function renderResult() {
     else if (af === 'op') res = bf === 'op' ? '<span class="lose">對手持有</span>' : '<span class="lose">對手奪得</span>';
     else res = '<span class="keep">中立</span>';
     return `<tr><td class="g" style="--c:${T.color}"><span class="sw"></span>${T.code} ${T.name}（${T.charm}）</td>
-      <td>${a}${row.sec[m] ? '<small title="含密約"> ◆</small>' : ''}</td><td>${b}${row.sec[o] ? '<small title="含密約"> ◆</small>' : ''}</td><td>${res}</td></tr>`;
+      <td>${a}${row.sec[m] ? '<small title="含秘密贈與"> ◆</small>' : ''}</td><td>${b}${row.sec[o] ? '<small title="含秘密贈與"> ◆</small>' : ''}</td><td>${res}</td></tr>`;
   }).join('');
   let head = `<h2>第 ${V.round} 局結算</h2>`;
   if (V.phase === 'gameEnd') {
@@ -1018,22 +1024,22 @@ function renderResult() {
   let btn;
   if (V.phase === 'settle') btn = V.ready[m] ? `<button class="btn" disabled>等待對手…</button>` : `<button class="btn primary" id="btnNext">下一局（交換先手）</button>`;
   else btn = `<div class="row" style="justify-content:center">${CFG.mode !== 'guest' ? '<button class="btn primary" id="btnAgain">再來一場</button>' : '<span class="note">等待房主開新局…</span>'}<button class="btn" id="btnQuit2">回主選單</button></div>`;
-  const sec = V.op.secret != null ? `<div class="note">◆ 表示含密約。對手的密約：${tn(CARD_TYPE[V.op.secret])}${V.op.discard && V.op.discard.length ? '；對手取捨：' + V.op.discard.map(c => tn(CARD_TYPE[c])).join('') : ''}</div>` : '';
+  const sec = V.op.secret != null ? `<div class="note">◆ 表示含秘密贈與。對手的秘密贈與：${tn(CARD_TYPE[V.op.secret])}${V.op.discard && V.op.discard.length ? '；對手無籍銷賬：' + V.op.discard.map(c => tn(CARD_TYPE[c])).join('') : ''}</div>` : '';
   md.innerHTML = `${head}
-    <table class="res"><tr><th style="text-align:left">藝者</th><th>你</th><th>對手</th><th>歸屬</th></tr>${rows}</table>${sec}
+    <table class="res"><tr><th style="text-align:left">軍官</th><th>你</th><th>對手</th><th>歸屬</th></tr>${rows}</table>${sec}
     <div class="sum ${V.phase === 'gameEnd' ? 'winner' : ''}"><div class="${V.winner === m ? 'w' : ''}"><small>你</small><b>${r.n[m]} 位 · ${r.c[m]} 分</b></div><div class="${V.winner === o ? 'w' : ''}"><small>對手</small><b>${r.n[o]} 位 · ${r.c[o]} 分</b></div></div>
-    <div class="note" style="text-align:center;margin-bottom:10px">勝利條件：至少 4 位藝者，或至少 11 點魅力值（同時達標以 11 分者勝）</div>${btn}`;
+    <div class="note" style="text-align:center;margin-bottom:10px">勝利條件：至少 4 位軍官，或至少 11 點能力值（同時達標以 11 分者勝）</div>${btn}`;
   openModal('mdResult');
 }
 function logLine(e) {
   const W = who(e.p);
   switch (e.k) {
     case 'round': return `<div class="rd">— 第 ${e.n} 局開始，${who(e.p)}先手 —</div>`;
-    case 'secret': return `<div>${W}使用了【密約】</div>`;
-    case 'discard': return `<div>${W}使用了【取捨】</div>`;
-    case 'gift': return `<div>${W}使用【贈予】：${e.ty.map(tn).join('')}</div>`;
+    case 'secret': return `<div>${W}使用了【秘密贈與】</div>`;
+    case 'discard': return `<div>${W}使用了【無籍銷賬】</div>`;
+    case 'gift': return `<div>${W}使用【經費共用】：${e.ty.map(tn).join('')}</div>`;
     case 'pickGift': return `<div>${W}選了 ${tn(e.ty)}，另外 ${e.rest.map(tn).join('')} 歸對方</div>`;
-    case 'compete': return `<div>${W}使用【競爭】：${e.ty.map(g => g.map(tn).join('')).join(' ｜ ')}</div>`;
+    case 'compete': return `<div>${W}使用【公費贈予】：${e.ty.map(g => g.map(tn).join('')).join(' ｜ ')}</div>`;
     case 'pickGroup': return `<div>${W}選了 ${e.ty.map(tn).join('')}，另一組 ${e.rest.map(tn).join('')} 歸對方</div>`;
   }
   return '';
@@ -1351,25 +1357,25 @@ function openSettings() {
 
 // ===================== 規則 =====================
 const RULES_HTML = `<h2>📖 花見小路 規則</h2>
-<p>你是料亭老闆，要用物品討好七位藝者，爭取她們的支持（喜愛標記）。兩人對戰，約 15 分鐘一局。</p>
+<p>你是商業型政客，要用物品討好七位軍官，爭取他們的信任（信任標記）。兩人對戰，約 15 分鐘一局。</p>
 <h3>🏆 勝利條件（一局結算後檢查）</h3>
-<ul><li>擁有 <b>至少 4 位</b>藝者，或</li><li>擁有的藝者魅力值總和 <b>至少 11 點</b></li><li>同時達標：<b>11 分的一方獲勝</b></li></ul>
+<ul><li>擁有 <b>至少 4 位</b>軍官，或</li><li>擁有的軍官能力值總和 <b>至少 11 點</b></li><li>同時達標：<b>11 分的一方獲勝</b></li></ul>
 <h3>🃏 配件</h3>
-<p>七位藝者魅力值為 <b>2、2、2、3、3、4、5</b>，每位對應的物品牌張數＝她的魅力值（共 21 張）。每局：洗牌→<b>隨機移除 1 張</b>（不公開）→每人 6 張手牌→牌堆剩 8 張。</p>
+<p>七位軍官能力值為 <b>2、2、2、3、3、4、5</b>，每位對應的物品牌張數＝他的能力值（共 21 張）。每局：洗牌→<b>隨機移除 1 張</b>（不公開）→每人 6 張手牌→牌堆剩 8 張。</p>
 <h3>🔁 回合</h3>
 <p>輪到你時<b>先抽 1 張</b>，再選一個<b>尚未使用</b>的行動。每局每人把四種行動各做一次（共 8 回合）。</p>
 <ul>
-<li><b>密約（1 張）</b>：蓋著放一旁，結算時才翻開，算進你這邊。</li>
-<li><b>取捨（2 張）</b>：蓋著放一旁，本局<b>完全不計分</b>。</li>
-<li><b>贈予（3 張）</b>：公開 3 張，<b>對手先選 1 張</b>放到他那邊，剩下 2 張歸你。</li>
-<li><b>競爭（4 張）</b>：公開並分成 2 組（每組 2 張），<b>對手先選 1 組</b>，剩下一組歸你。</li>
+<li><b>秘密贈與（1 張）</b>：蓋著放一旁，結算時才翻開，算進你這邊。</li>
+<li><b>無籍銷賬（2 張）</b>：蓋著放一旁，本局<b>完全不計分</b>。</li>
+<li><b>經費共用（3 張）</b>：公開 3 張，<b>對手先選 1 張</b>放到他那邊，剩下 2 張歸你。</li>
+<li><b>公費贈予（4 張）</b>：公開並分成 2 組（每組 2 張），<b>對手先選 1 組</b>，剩下一組歸你。</li>
 </ul>
 <h3>⚖ 結算</h3>
-<p>雙方翻開密約後，逐位藝者比較<b>雙方物品張數</b>：多的一方拿走喜愛標記（贏幾張都只算一次）；<b>平手（含 0：0）標記不動</b>，保持原本歸屬。然後檢查勝利條件。</p>
+<p>雙方翻開秘密贈與後，逐位軍官比較<b>雙方物品張數</b>：多的一方拿走信任標記（贏幾張都只算一次）；<b>平手（含 0：0）標記不動</b>，保持原本歸屬。然後檢查勝利條件。</p>
 <h3>➡ 下一局</h3>
-<p>若沒人達標：收回所有物品牌重新洗牌，<b>交換先手</b>，喜愛標記留在原位，繼續下一局。若選了「至多三局」，第三局後仍無人達標，先比魅力值總和，再比各自擁有藝者的最高魅力值，仍相同則平手。</p>
+<p>若沒人達標：收回所有物品牌重新洗牌，<b>交換先手</b>，信任標記留在原位，繼續下一局。若選了「至多三局」，第三局後仍無人達標，先比能力值總和，再比各自擁有軍官的最高能力值，仍相同則平手。</p>
 <h3>💡 小提醒</h3>
-<ul><li>贈予、競爭時，站在對手的角度想：「他拿哪個最痛？」</li><li>平手標記不動 —— 守住已有的藝者，有時只需要打平。</li><li>5 分藝者有 5 張牌，拿到 3 張就足以確保，之後再多都是浪費。</li></ul>
+<ul><li>經費共用、公費贈予時，站在對手的角度想：「他拿哪個最痛？」</li><li>平手標記不動 —— 守住已有的軍官，有時只需要打平。</li><li>5 分軍官有 5 張牌，拿到 3 張就足以確保，之後再多都是浪費。</li></ul>
 <p class="note">卡面圖示為自繪示意，非官方美術。規則依官方 2018 繁體中文版整理。</p>
 <div style="text-align:right;margin-top:10px"><button class="btn" data-close>關閉</button></div>`;
 
