@@ -457,7 +457,7 @@ img{pointer-events:none}
 #menu.on,#lobby.on{display:grid;place-items:center;padding:12px}
 .menu-box{transform:scale(var(--ms,1));transform-origin:center center}
 .sheet,.logbox{touch-action:pan-y;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
-.stage-hint,#rowView{display:none!important}
+body.mobile .stage-hint{display:none}
 #stage{touch-action:none;cursor:default}
 #a2hs{margin-top:10px;font-size:12.5px;opacity:.85;text-align:center;color:#bcd6ee}
 </style>
@@ -479,6 +479,31 @@ img{pointer-events:none}
 @keyframes logoGlow{50%{opacity:.55;transform:scale(1.05)}}
 @keyframes logoHit{0%{transform:scale(1)}30%{transform:scale(1.06) rotate(-.8deg)}100%{transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.lg,.lg .shine,.lg .glow{animation:none!important}}
+</style>
+<style id="menulayout">
+#menu.on,#lobby.on{place-items:safe center}
+.menu-cols{display:block}
+/* 電腦版橫式排版：標題置頂，單人／多人兩欄並排，一屏看完 */
+@media (min-width:900px) and (min-aspect-ratio:5/4){
+ #menu .menu-box{width:min(1040px,96vw)}
+ #menu .lg{width:min(40vw,470px,calc((100vh - 400px) * 2.6))}
+ #menu .sakura{margin:6px 0 16px}
+ #menu .menu-cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:stretch}
+ #menu .menu-cols .menu-card{margin:0;display:flex;flex-direction:column}
+ #menu .menu-cols .menu-card>.btn.primary#btnSingle{margin-top:auto;align-self:flex-start}
+ #menu .menu-card h3{font-size:20px}
+}
+</style>
+<style id="qafix">
+.btn.trayBtn{position:absolute}
+.act.on{border:1px solid #b9defa!important;border-image:none!important;background:linear-gradient(180deg,#4f86b6,#2a5683)!important;color:#fff!important;box-shadow:0 0 16px rgba(129,191,255,.55),inset 0 1px 0 rgba(255,255,255,.4)}
+.act.on b,.act.on small{color:#fff}
+body.desktop .act{font-size:13.5px;padding:6px 2px;letter-spacing:0}
+body.desktop .act small{font-size:10.5px;line-height:1.3;padding:0 3px;word-break:break-all}
+.stage-hint{left:auto;right:14px;top:auto;bottom:8px}
+.mini-rules{margin:4px 0 12px;padding:10px 12px;border-radius:12px;background:rgba(120,170,230,.08);border:1px solid rgba(150,200,255,.18);font-size:13px;line-height:1.7;opacity:.92}
+.mini-rules b{color:#ffd98a}
+body.mobile .mini-rules{display:none}
 </style>
 <style id="ui3d">
 /* ===== 立體按鍵／面板（疊層擠出厚度 + 隨游標傾斜 + 高光跟隨）===== */
@@ -563,9 +588,10 @@ img{pointer-events:none}
 <div id="menu" class="screen on">
   <div class="menu-box">
     <div class="logo-sub">賄賂 · 統戰 · 信任</div>
-    <h1 class="logo" aria-label="Bribery賄賂統戰"><span class="lg" id="logoBox"><i class="glow"></i><img src="assets/logo.webp" alt="Bribery賄賂統戰" draggable="false"><i class="shine"></i></span></h1>
+    <h1 class="logo" aria-label="Bribery賄賂統戰"><span class="lg" id="logoBox"><i class="glow"></i><img src="assets/logo.webp" alt="Bribery賄賂統戰" draggable="false" width="1100" height="381"><i class="shine"></i></span></h1>
     <div class="sakura" id="sakura"></div>
 
+    <div class="menu-cols">
     <div class="menu-card">
       <h3>單人遊玩</h3>
       <p>與電腦對手較量，隨時可開始。</p>
@@ -573,6 +599,7 @@ img{pointer-events:none}
         <div class="seg" id="segLevel"><button data-v="easy">簡單</button><button data-v="normal" class="on">普通</button><button data-v="hard">困難</button></div></div>
       <div class="row" style="margin-bottom:14px"><span class="lbl">局數規則</span>
         <div class="seg" id="segRounds"><button data-v="0" class="on">打到有人達標</button><button data-v="1">至多三局</button></div></div>
+      <div class="mini-rules">🎯 <b>目標</b>：先拿到 <b>4 位</b>軍官，或軍官能力值合計 <b>11 點</b>。<br>🃏 每輪 4 種行動各用一次：秘密贈與、無籍銷賬、經費共用、公費贈予。<br>⚖ 每位軍官處放的物品較多者，拿走他的信任標記。</div>
       <button class="btn primary" id="btnSingle">開始遊戲</button>
     </div>
 
@@ -587,6 +614,7 @@ img{pointer-events:none}
       </div>
       <div class="note" id="a2hs" hidden>📱 想要真正全螢幕：在 Safari 按「分享」→「加入主畫面」，從主畫面圖示開啟。</div>
       <div class="note" id="netNote">朋友需要能開啟這個頁面（由你分享連結給對方）才能加入房間。</div>
+    </div>
     </div>
     <button class="link" id="btnRules">📖 遊戲規則</button><button class="link" id="btnSet0">⚙ 設定（全螢幕／裝置顯示）</button>
   </div>
@@ -1763,8 +1791,8 @@ const NEUY = 0.36, GAP = 1.37, ITEM0 = 1.96, STEP = 0.32, TOKY = 1.19;
 const LAYOUTS = {
   desk: { gap: 1.55, hw: 6.0, hh: 4.3, mw: 5.7, mh: 4.0, rad: .6, off: [.12, .22],
     pos: { deck: [-5.05, -2.2], opSec: [5.05, -1.7], opDis: [5.05, -2.9], meSec: [-5.05, 1.7], meDis: [-5.05, 2.9] } },
-  mob: { gap: 1.37, hw: 5.1, hh: 4.6, mw: 4.9, mh: 4.4, rad: .5, off: [.3, 0],
-    pos: { deck: [-2.9, -3.75], opSec: [-1.7, -3.75], opDis: [-.45, -3.75], meSec: [-1.7, 3.75], meDis: [-.45, 3.75] } },
+  mob: { gap: 1.27, hw: 4.75, hh: 4.6, mw: 4.55, mh: 4.4, rad: .5, off: [.3, 0],
+    pos: { deck: [-2.7, -3.75], opSec: [-1.55, -3.75], opDis: [-.4, -3.75], meSec: [-1.55, 3.75], meDis: [-.4, 3.75] } },
 };
 let LAYOUT = LAYOUTS.desk;
 const disXY = (b, k) => [b[0] + (k ? 1 : -1) * LAYOUT.off[0], b[1] + (k ? 1 : -1) * LAYOUT.off[1]];
@@ -1776,7 +1804,7 @@ function buildStage() {
   let h = `<div class="o" id="wood" style="${pos(0, 0, 0)};--z:-.3"></div>
     <div class="o" id="felt" style="${pos(0, 0, 0)};--z:-.2"><span class="felt-lb t">對　手</span><span class="felt-lb b">你</span></div>`;
   TYPES.forEach((T, i) => {
-    h += `<div class="o g3" id="g${i}" style="--c:${T.color};background-image:url(cards/${T.code}.jpg);${pos(colX(i), 0, .07)}" data-o="mid" title="${T.code} ${T.off}（能力 ${T.charm}）"><div class="nmz">${T.off}</div><div class="gsub">${T.name}</div></div>`;
+    h += `<div class="o g3" id="g${i}" style="--c:${T.color};background-image:url(cards/${T.code}.jpg);${pos(colX(i), 0, .07)}" data-o="mid" title="${T.off}（能力 ${T.charm}）"><div class="nmz">${T.off}</div><div class="gsub">${T.name}</div></div>`;
     h += `<div class="o tok" id="tk${i}" data-o="mid" style="${pos(colX(i), NEUY, .3)}">★</div>`;
     h += `<div class="o nb" id="nbo${i}" style="${pos(colX(i) + .52, -1.62, .14)};display:none"></div>`;
     h += `<div class="o nb" id="nbm${i}" style="${pos(colX(i) + .52, 1.62, .14)};display:none"></div>`;
@@ -1897,7 +1925,7 @@ function initStageControls() {
   st.addEventListener('wheel', e => { e.preventDefault(); ST.zoom = Math.max(0.7, Math.min(1.7, ST.zoom * (e.deltaY < 0 ? 1.08 : 0.93))); applyView(); }, { passive: false });
   if (window.ResizeObserver) { let t; new ResizeObserver(() => { clearTimeout(t); t = setTimeout(fitStage, 60); }).observe(st); }
 }
-const VIEW_LOCK = true;   // 鎖定 3D 視角：不可拖曳旋轉／縮放
+const VIEW_LOCK = false;   // 3D 視角可拖曳旋轉（僅鎖定裝置螢幕旋轉）
 const ACT_ICON = { secret: '✉️', discard: '🗑️', gift: '🤝', compete: '💰' };
 const myTurn = () => V && !FX.busy && V.phase === 'turn' && V.cur === V.seat;
 const iRespond = () => V && !FX.busy && V.phase === 'respond' && V.pending.by !== V.seat;
@@ -2019,7 +2047,7 @@ function renderResult() {
     if (af === 'me') res = bf === 'me' ? '<span class="win">守住 ✓</span>' : '<span class="win">奪得 ✓</span>';
     else if (af === 'op') res = bf === 'op' ? '<span class="lose">對手持有</span>' : '<span class="lose">對手奪得</span>';
     else res = '<span class="keep">中立</span>';
-    return `<tr><td class="g" style="--c:${T.color}"><span class="sw"></span>${T.code} ${T.off}（${T.charm}）</td>
+    return `<tr><td class="g" style="--c:${T.color}"><span class="sw"></span>${T.off}（${T.charm}）</td>
       <td>${a}${row.sec[m] ? '<small title="含秘密贈與"> ◆</small>' : ''}</td><td>${b}${row.sec[o] ? '<small title="含秘密贈與"> ◆</small>' : ''}</td><td>${res}</td></tr>`;
   }).join('');
   let head = `<h2>第 ${V.round} 局結算</h2>`;
@@ -2577,7 +2605,9 @@ init();
   window.fitMenus = fitMenus;
   const _show = show; show = function (id) { _show(id); requestAnimationFrame(fitMenus); };
   addEventListener('resize', fitMenus); addEventListener('orientationchange', () => setTimeout(fitMenus, 250));
-  setTimeout(fitMenus, 50); setTimeout(fitMenus, 600); if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitMenus);
+  setTimeout(fitMenus, 50); setTimeout(fitMenus, 600); setTimeout(fitMenus, 1800);
+  $$('.menu-box img').forEach(i => { if (!i.complete) i.addEventListener('load', fitMenus); });
+  if (window.ResizeObserver) { const ro = new ResizeObserver(() => requestAnimationFrame(fitMenus)); $$('.menu-box').forEach(b => ro.observe(b)); } if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitMenus);
   new MutationObserver(() => requestAnimationFrame(fitMenus)).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class', 'hidden'] });
   // 手機：第一次點擊進入全螢幕並鎖定直向（瀏覽器規定需要使用者操作）
   const isMobile = () => (typeof DEVICE !== 'undefined' ? DEVICE : detectDevice()) === 'mobile';
