@@ -360,13 +360,13 @@ body{background:#f6efe0}
 
 /* 3D：圓形會議桌 */
 #stage{background:transparent;border:0;border-radius:0}
-#wood{width:calc(var(--u)*11);height:calc(var(--u)*11);--z:-.3;border-radius:50%;
+#wood{width:calc(var(--u)*var(--hw)*2);height:calc(var(--u)*var(--hh)*2);--z:-.3;border-radius:calc(var(--u)*var(--rad,.6));
   background:radial-gradient(circle at 38% 30%,#f6dfb4 0,#e2bd85 50%,#c79a5f 100%);box-shadow:none}
-#wood::before,#wood::after{content:"";position:absolute;inset:0;border-radius:50%}
+#wood::before,#wood::after{content:"";position:absolute;inset:0;border-radius:inherit}
 #wood::before{background:#b98a50;transform:translateZ(calc(var(--u)*-.16))}
 #wood::after{background:#8f6532;transform:translateZ(calc(var(--u)*-.34));box-shadow:0 calc(var(--u)*.5) calc(var(--u)*.9) rgba(90,60,20,.38)}
 #tshadow{width:calc(var(--u)*12.4);height:calc(var(--u)*12.4);--z:-3.2;border-radius:50%;background:radial-gradient(circle,rgba(70,45,15,.5) 0,rgba(70,45,15,.34) 55%,rgba(70,45,15,0) 72%)}
-#felt{width:calc(var(--u)*10.5);height:calc(var(--u)*10.5);--z:-.2;border-radius:50%;
+#felt{width:calc(var(--u)*var(--mw)*2);height:calc(var(--u)*var(--mh)*2);--z:-.2;border-radius:calc(var(--u)*(var(--rad,.6) - .12));
   background:
    linear-gradient(112deg,transparent 14%,rgba(255,244,196,.5) 14% 27%,transparent 27% 33%,rgba(255,244,196,.42) 33% 46%,transparent 46%),
    radial-gradient(ellipse at 72% 18%,rgba(255,255,255,.55),transparent 55%),
@@ -1283,9 +1283,17 @@ function cardHTML(id, opt) {
     <span class="t">${T.name}</span></${tag}>`;
 }
 // ===================== 3D 牌桌（CSS 3D） =====================
-const NEUY = 0.36, GAP = 1.37, ITEM0 = 1.96, STEP = 0.32, TOKY = 1.19, PILEY = 3.75;
-const PX = { deck: -2.9, sec: -1.7, dis: -0.45 };
-const colX = i => (i - 3) * GAP;
+const NEUY = 0.36, GAP = 1.37, ITEM0 = 1.96, STEP = 0.32, TOKY = 1.19;
+// 桌型：電腦＝橫長條桌（牌堆放在兩端）；手機＝較緊湊的長方桌（牌堆放在上下列）
+const LAYOUTS = {
+  desk: { gap: 1.55, hw: 6.0, hh: 4.3, mw: 5.7, mh: 4.0, rad: .6, off: [.12, .22],
+    pos: { deck: [-5.05, -2.2], opSec: [5.05, -1.7], opDis: [5.05, -2.9], meSec: [-5.05, 1.7], meDis: [-5.05, 2.9] } },
+  mob: { gap: 1.37, hw: 5.1, hh: 4.6, mw: 4.9, mh: 4.4, rad: .5, off: [.3, 0],
+    pos: { deck: [-2.9, -3.75], opSec: [-1.7, -3.75], opDis: [-.45, -3.75], meSec: [-1.7, 3.75], meDis: [-.45, 3.75] } },
+};
+let LAYOUT = LAYOUTS.desk;
+const disXY = (b, k) => [b[0] + (k ? 1 : -1) * LAYOUT.off[0], b[1] + (k ? 1 : -1) * LAYOUT.off[1]];
+const colX = i => (i - 3) * LAYOUT.gap;
 const ST = { cols: [], built: false, rx: 46, rz: 0, zoom: 1, defRx: 46, last: null, piles: {} };
 const pos = (x, y, z) => `--x:${x};--y:${y};--z:${z}`;
 
@@ -1299,9 +1307,12 @@ function buildStage() {
     h += `<div class="o nb" id="nbm${i}" style="${pos(colX(i) + .52, 1.62, .14)};display:none"></div>`;
   });
   // 牌堆 / 秘密贈與 / 無籍銷賬 欄位
-  const slots = [['牌堆', PX.deck, -PILEY], ['秘密<br>贈與', PX.sec, -PILEY], ['無籍<br>銷賬', PX.dis, -PILEY], ['秘密<br>贈與', PX.sec, PILEY], ['無籍<br>銷賬', PX.dis, PILEY]];
+  const Pz = LAYOUT.pos;
+  const slots = [['牌堆', ...Pz.deck], ['秘密<br>贈與', ...Pz.opSec], ['無籍<br>銷賬', ...Pz.opDis], ['秘密<br>贈與', ...Pz.meSec], ['無籍<br>銷賬', ...Pz.meDis]];
   slots.forEach(([t, x, y], k) => { h += `<div class="o slot" style="${pos(x, y, -.1)}">${t}</div>`; });
   h += `<div id="piles"></div>`;
+  const stg = $('#stage');
+  stg.style.setProperty('--hw', LAYOUT.hw); stg.style.setProperty('--hh', LAYOUT.hh); stg.style.setProperty('--mw', LAYOUT.mw); stg.style.setProperty('--mh', LAYOUT.mh); stg.style.setProperty('--rad', LAYOUT.rad);
   $('#org').innerHTML = h;
   ST.cols = TYPES.map((_, i) => ({ g: $('#g' + i), tk: $('#tk' + i), op: [], me: [], nbo: $('#nbo' + i), nbm: $('#nbm' + i), side: 'mid' }));
   ST.built = true;
@@ -1333,16 +1344,16 @@ function pileCard(cls, x, y, z, txt, color, ty) {
 }
 function renderPiles() {
   let h = '';
-  const rev = V.phase === 'settle' || V.phase === 'gameEnd';
+  const rev = V.phase === 'settle' || V.phase === 'gameEnd', P = LAYOUT.pos;
   const layers = Math.min(4, Math.ceil(V.deckN / 2));
-  for (let k = 0; k < layers; k++) h += pileCard('', PX.deck, -PILEY, (-.02 + .04 * k).toFixed(2));
-  if (V.op.hasSecret && !rev) h += pileCard('r', PX.sec, -PILEY, .02);
+  for (let k = 0; k < layers; k++) h += pileCard('', P.deck[0], P.deck[1], (-.02 + .04 * k).toFixed(2));
+  if (V.op.hasSecret && !rev) h += pileCard('r', P.opSec[0], P.opSec[1], .02);
   if (V.op.discardN) for (let k = 0; k < V.op.discardN; k++) {
-    const d = V.op.discard && V.op.discard[k] != null ? CARD_TYPE[V.op.discard[k]] : null;
-    h += d != null ? pileCard('face', PX.dis + (k ? .3 : -.3), -PILEY, .02 + .04 * k, '', TYPES[d].color, d) : pileCard('r', PX.dis + (k ? .3 : -.3), -PILEY, .02 + .04 * k);
+    const d = V.op.discard && V.op.discard[k] != null ? CARD_TYPE[V.op.discard[k]] : null, [x, y] = disXY(P.opDis, k);
+    h += d != null ? pileCard('face', x, y, .02 + .04 * k, '', TYPES[d].color, d) : pileCard('r', x, y, .02 + .04 * k);
   }
-  if (V.me.secret != null && !rev) { const t = CARD_TYPE[V.me.secret]; h += pileCard('face', PX.sec, PILEY, .02, '', TYPES[t].color, t); }
-  V.me.discard.forEach((id, k) => { const t = CARD_TYPE[id]; h += pileCard('face', PX.dis + (k ? .3 : -.3), PILEY, .02 + .04 * k, '', TYPES[t].color, t); });
+  if (V.me.secret != null && !rev) { const t = CARD_TYPE[V.me.secret]; h += pileCard('face', P.meSec[0], P.meSec[1], .02, '', TYPES[t].color, t); }
+  V.me.discard.forEach((id, k) => { const t = CARD_TYPE[id], [x, y] = disXY(P.meDis, k); h += pileCard('face', x, y, .02 + .04 * k, '', TYPES[t].color, t); });
   $('#piles').innerHTML = h;
 }
 function applyTok(i, side, hop) {
@@ -1378,12 +1389,8 @@ function fitStage() {
   const st = $('#stage'); if (!st || !st.clientWidth) return;
   const W = st.clientWidth, H = st.clientHeight;
   const pz = parseFloat(st.style.getPropertyValue('--pz')) || 14;
-  const a = ST.rx * Math.PI / 180, R = 5.5, oy = H * 0.4;
-  const pts = [];
-  for (let k = 0; k < 90; k++) {
-    const t = k / 90 * 2 * Math.PI, x = R * Math.cos(t), y = R * Math.sin(t);
-    pts.push([x, y * Math.cos(a), pz / (pz - y * Math.sin(a))]);
-  }
+  const a = ST.rx * Math.PI / 180, oy = H * 0.4, hw = LAYOUT.hw, hh = LAYOUT.hh;
+  const pts = [[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]].map(([x, y]) => [x, y * Math.cos(a), pz / (pz - y * Math.sin(a))]);
   let u = 30, dy = 0;
   for (let it = 0; it < 12; it++) {
     const c = H / 2 + dy - oy;
@@ -1839,9 +1846,11 @@ function detectDevice() {
 }
 function applyDevice() {
   DEVICE = PREF.dev === 'auto' ? detectDevice() : PREF.dev;
+  const lay = DEVICE === 'mobile' ? LAYOUTS.mob : LAYOUTS.desk;
+  if (lay !== LAYOUT) { LAYOUT = lay; if (ST.built) { buildStage(); ST.last = null; } }
   document.body.classList.toggle('mobile', DEVICE === 'mobile');
   document.body.classList.toggle('desktop', DEVICE !== 'mobile');
-  ST.defRx = DEVICE === 'mobile' ? 49 : 52;
+  ST.defRx = DEVICE === 'mobile' ? 36 : 52;
   $('#stage').style.setProperty('--pz', DEVICE === 'mobile' ? 12 : 13);
   if (!ST.touched) { ST.rx = ST.defRx; applyView(); }
   checkOrient();
