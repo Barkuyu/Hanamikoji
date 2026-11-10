@@ -1,0 +1,77 @@
+/* Bribery: Midnight Office. Load after the original stylesheet. */
+:root{
+ --ink:#080e18;--ink2:#142438;--ink3:#263e56;--paper:#ecf5ff;
+ --gold:#a8d5fa;--gold2:#a7c9e7;--me:#95d4ff;--op:#dfacd6;--good:#a9eed8;--bad:#f4bbd9;
+ --line:#6d90af80;--panel:linear-gradient(155deg,#1c3045f5,#0a1524f5);
+ --office:url(backgrounds/office_desktop.webp);
+}
+@media (orientation:portrait){:root{--office:url(backgrounds/office_mobile.webp)}}
+html,body{background:#080f1c;color:var(--paper)}
+#room{background:#07101c;isolation:isolate}
+#room > *{display:none}
+#room::before,#room::after{content:"";position:absolute;inset:0;pointer-events:none}
+#room::before{inset:-4%;background:var(--office) center 52%/cover no-repeat;
+ transform:translate3d(var(--office-x,0px),var(--office-y,0px),0);transition:transform .18s ease-out}
+#room::after{background:linear-gradient(180deg,#050b1680,#080f1820 42%,#050a14a6)}
+body.mobile{--office:url(backgrounds/office_mobile.webp)}
+body.desktop{--office:url(backgrounds/office_desktop.webp)}
+.logo{color:#f4f8ff;text-shadow:0 3px 16px #000,0 0 30px #b0d1fd55;font-size:clamp(27px,7.4vw,58px)}
+.sakura i,.card,.g3{border-color:#9cbdd2b5}
+.menu-card,.player,.offer,.status,.status.wait,.grp,.seat,.chip,.sc,.sum div{
+ background:var(--panel);color:var(--paper);border-color:var(--line);box-shadow:0 6px 20px #0005
+}
+.player.active,.grp.chosen{border-color:#95d4ff;box-shadow:0 0 14px #81bfff44}
+.mk span,.input,.seg{background:#101e2e;color:var(--paper);border-color:var(--line)}
+.mk span.used{color:#9aabba;border-color:#60738a}
+.seg button.on{background:#2b4d6c;color:#fff}
+.btn,.act,.ib,#fxSkip{
+ --skin:url(ui/button_secondary.webp);color:#eaf6ff;background:#14263b;
+ border:10px solid transparent;border-image:var(--skin) 24 fill stretch;
+ border-radius:8px;box-shadow:0 3px 8px #0006;min-height:44px;
+}
+.btn,.btn.small{padding:0 7px}
+.ib,.act{padding:0 4px}
+.btn.primary,.act.on{--skin:url(ui/button_primary.webp);color:white;border-color:transparent;background:#203e5e;box-shadow:0 0 14px #6facdf45}
+.btn.danger{--skin:url(ui/button_danger.webp);color:#ffe0f5;border-color:transparent}
+.btn:hover:not(:disabled),.btn.primary:hover:not(:disabled),.ib:hover,.act:hover:not(:disabled){background:#192e44;filter:brightness(1.23)}
+.btn:active:not(:disabled),.act:active:not(:disabled),.ib:active{filter:brightness(.86)}
+.btn:disabled,.act:disabled,.act.used{opacity:.55;filter:saturate(.5);cursor:not-allowed}
+button:focus-visible,input:focus-visible{outline:2px solid #c3e6ff;outline-offset:2px}
+.seg button,.link{min-height:44px}
+.modal{background:#020814b0}
+.sheet,.say,.cmpb,.gbox{
+ background:#0f2033;color:var(--paper);border:10px solid transparent;
+ border-image:url(ui/panel_modal.webp) 24 fill stretch;box-shadow:0 12px 45px #000a;
+}
+.sheet{max-height:min(88dvh,92vh);padding:12px;overscroll-behavior:contain}
+.say{border-image-source:url(ui/panel_dialogue.webp);padding:0 6px}
+.say.me,.say.op,.cmpb.me,.cmpb.op{border-color:transparent}
+.say b,.cmpb b{color:#eef6ff}
+.say small,.cmpb small,.stage-hint{color:#bbd1e6}
+.banner,.toast,#orient{background:#101d2f;color:#f2f6ff}
+.setrow,.res td,.res th,.logbox div{border-color:#688eac55}
+#wood{background:#1a2737 url(table/rim.webp) center/100% 100%;box-shadow:inset 0 0 0 2px #b1c9df80}
+#wood::before{background:#233448}
+#wood::after{background:#070e17;box-shadow:0 calc(var(--u)*.5) calc(var(--u)*.9) #000a}
+#felt{background:#142943 url(table/felt.webp) center/100% 100%;box-shadow:inset 0 0 0 calc(var(--u)*.035) #9db8d580,inset 0 0 calc(var(--u)*.55) #02060db0}
+#felt::after{border-top-color:#83acc566}
+.felt-lb,.slot{color:#bfd8ea99;border-color:#84aac773}
+.g3::before,.g3::after,.i3::before,.pc::before,.tok::after{background:#253a50;box-shadow:0 1px 3px #02050a99}
+.tok{background:#122138 url(props/trust_medallion.webp) center/contain no-repeat;color:transparent;border:0}
+.tok[data-s=me],.tok[data-s=op]{color:transparent}
+.nb{background:#11233a}
+.card.sel,.fcard.gl{box-shadow:0 0 0 2px #99d4ff,0 0 20px #5ebeff88}
+.g3[data-o=me],.i3.hlm,.g3.hl{outline-color:#99d4ff}
+.i3.hlo{outline-color:#dfacd6}
+.victory{text-shadow:0 0 24px #86caff80}
+@media(prefers-reduced-motion:reduce){#room::before{transition:none;transform:none}}
+.tok[data-o=me]{box-shadow:0 0 0 2px #9ddaff,0 0 8px #69bdff;filter:brightness(1.25)}
+.tok[data-o=op]{box-shadow:0 0 0 2px #e1aad9,0 0 8px #d695d5;filter:hue-rotate(74deg)}
+.tok[data-o=mid]{box-shadow:0 0 0 1px #8aa1b3;filter:saturate(.3)}
+.cmpb b .nm1{color:#a9d8ff}.cmpb b .nm2{color:#f2b9e0}
+/* 修正：.tok 的 filter 會壓平 3D 子層，使厚度層蓋住代幣圖面；改為隱藏厚度層並用陰影 */
+.tok::before,.tok::after{display:none}
+.tok{box-shadow:0 calc(var(--u)*.05) calc(var(--u)*.14) #000a}
+.tok[data-o=me]{box-shadow:0 0 0 2px #9ddaff,0 0 10px #69bdff}
+.tok[data-o=op]{box-shadow:0 0 0 2px #e1aad9,0 0 10px #d695d5}
+.tok[data-o=mid]{box-shadow:0 2px 6px #000a}
