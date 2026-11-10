@@ -2139,11 +2139,66 @@ function netSend(msg) {
   msg.from = NET.id; msg.code = NET.code;
   try { const p = NET.room.emit('hk', msg); if (p && p.catch) p.catch(() => { }); } catch (e) { }
 }
-async function netOpen(code) {
-  if (!(window.claude && window.claude.use)) return false;
-  let lobby;
-  try { lobby = await window.claude.use('room'); } catch (e) { return false; }
-  if (!lobby) return false;
+// ---- PeerJS 後備通道：不在 claude.ai 內（例如 GitHub 網頁／手機桌面圖示）時使用，P2P 直連 ----
+const PEER_CDN = ['https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js', 'https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js'];
+function loadPeerJS() {
+  if (window.Peer) return Promise.resolve(true);
+  return new Promise(res => {
+    let i = 0;
+    const next = () => {
+      if (window.Peer) return res(true);
+      if (i >= PEER_CDN.length) return res(false);
+      const s = document.createElement('script'); s.src = PEER_CDN[i++]; s.onload = () => res(!!window.Peer); s.onerror = () => { s.remove(); next(); };
+      document.head.appendChild(s);
+    };
+    next();
+  });
+}
+const peerId = code => 'hkbribery-' + code.toLowerCase();
+async function peerOpen(code, role) {
+  if (!(await loadPeerJS())) return { err: 'lib' };
+  return new Promise(res => {
+    const handlers = []; let peer, conns = [], hostConn = null, done = false;
+    const fin = v => { if (done) return; done = true; res(v); };
+    const room = {
+      emit(topic, msg) {
+        if (role === 'host') conns.forEach(c => { try { if (c.open) c.send(msg); } catch (e) { } });
+        else if (hostConn && hostConn.open) { try { hostConn.send(msg); } catch (e) { } }
+      },
+      on(topic, cb) { handlers.push(cb); },
+      leave() { try { conns.forEach(c => c.close()); if (hostConn) hostConn.close(); peer && peer.destroy(); } catch (e) { } },
+    };
+    const feed = c => { c.on('data', d => handlers.forEach(h => { try { h({ data: d, ...d }); } catch (e) { } })); };
+    try {
+      peer = role === 'host' ? new Peer(peerId(code), { debug: 0 }) : new Peer({ debug: 0 });
+    } catch (e) { return fin({ err: 'init' }); }
+    peer.on('error', e => { if (!done) fin({ err: e.type === 'unavailable-id' ? 'taken' : (e.type === 'peer-unavailable' ? 'nohost' : 'net') }); else if (e.type === 'peer-unavailable') { } });
+    peer.on('disconnected', () => { try { peer.reconnect(); } catch (e) { } });
+    if (role === 'host') {
+      peer.on('open', () => fin({ room }));
+      peer.on('connection', c => { conns = conns.filter(x => x.open); conns.push(c); feed(c); c.on('close', () => { conns = conns.filter(x => x !== c); }); });
+    } else {
+      peer.on('open', () => {
+        const c = peer.connect(peerId(code), { reliable: true }); hostConn = c; feed(c);
+        c.on('open', () => fin({ room }));
+        setTimeout(() => fin({ err: 'nohost' }), 9000);
+      });
+    }
+    setTimeout(() => fin({ err: 'timeout' }), 12000);
+  });
+}
+async function netOpen(code, role) {
+  let lobby = null;
+  if (window.claude && window.claude.use) { try { lobby = await window.claude.use('room'); } catch (e) { lobby = null; } }
+  if (!lobby) {
+    const r = await peerOpen(code, role || 'host');
+    if (!r.room) { NET.err = r.err; return false; }
+    NET.room = r.room; NET.code = code; NET.seen = Date.now(); NET.lost = false; NET.via = 'peer';
+    r.room.on('hk', d => netRecv(d.data || d));
+    clearInterval(NET.timer); NET.timer = setInterval(netTick, 2500);
+    return true;
+  }
+  NET.via = 'room';
   let r = lobby;
   try { if (typeof lobby.join === 'function') r = await lobby.join('hanamikoji-' + code); } catch (e) { r = lobby; }
   NET.room = r; NET.code = code; NET.seen = Date.now(); NET.lost = false;
@@ -2242,11 +2297,15 @@ function renderLobby() {
 }
 function readName() { myName = ($('#inName').value || '').trim().slice(0, 8) || '玩家'; return myName; }
 
+function netErrMsg() {
+  return ({ lib: '無法載入連線元件（PeerJS）。請確認網路可連到 unpkg.com／jsdelivr.net，或改用 claude.ai 內的版本。', nohost: '找不到這個房間。請確認代碼正確，且房主已建立房間並停留在大廳。', taken: '房間代碼衝突，請再按一次建立房間。', timeout: '連線逾時。請檢查網路（部分公司／校園網路會擋 P2P），或換一個網路再試。' })[NET.err] || '連線失敗，請檢查網路後重試。';
+}
 async function hostRoom() {
   readName();
-  const code = genCode();
-  const ok = await netOpen(code);
-  if (!ok) { toast('目前環境無法使用即時連線。請在 claude.ai 開啟這個 artifact 再試，或先玩單人模式。', 4200); return; }
+  toast('正在建立房間…', 2500);
+  let code = genCode(), ok = await netOpen(code, 'host');
+  for (let k = 0; !ok && NET.err === 'taken' && k < 3; k++) { code = genCode(); ok = await netOpen(code, 'host'); }
+  if (!ok) { toast(netErrMsg(), 5000); return; }
   NET.role = 'host'; NET.hostName = myName; NET.guestId = null; NET.fill = '';
   CFG.mode = 'host'; CFG.seat = 0; CFG.ai = [false, false];
   renderLobby(); show('lobby');
@@ -2255,8 +2314,9 @@ async function joinRoom() {
   readName();
   const code = ($('#inCode').value || '').trim().toUpperCase();
   if (code.length !== 4) { toast('請輸入 4 碼房間代碼'); return; }
-  const ok = await netOpen(code);
-  if (!ok) { toast('目前環境無法使用即時連線。請在 claude.ai 開啟這個 artifact 再試。', 4200); return; }
+  toast('正在連線到房間…', 2500);
+  const ok = await netOpen(code, 'guest');
+  if (!ok) { toast(netErrMsg(), 5000); return; }
   NET.role = 'guest'; NET.joined = false; NET.hostName = '';
   CFG.mode = 'guest'; CFG.seat = 1;
   renderLobby(); show('lobby');
@@ -2396,7 +2456,7 @@ function init() {
   $('#btnRestart').onclick = () => { closeModal('mdMenu'); if (CFG.mode === 'guest') return; startLocalGame(); };
   $('#btnQuit').onclick = quitToMenu;
   $$('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m && m.id !== 'mdResult') m.classList.remove('on'); }));
-  if (!(window.claude && window.claude.use)) $('#netNote').textContent = '多人連線需要在 claude.ai 中開啟並分享給朋友；目前環境可能無法連線，仍可使用單人模式。';
+  if (!(window.claude && window.claude.use)) $('#netNote').textContent = '多人連線使用 PeerJS 點對點直連（需要網路）。房主建立房間後把 4 碼代碼告訴朋友即可；雙方須使用同一種開啟方式（同為網頁版或同為 claude.ai 版）。';
   try { const n = sessionStorage.getItem('hk-name'); if (n) $('#inName').value = n; } catch (e) { }
   $('#inName').addEventListener('change', () => { try { sessionStorage.setItem('hk-name', readName()); } catch (e) { } });
 }
