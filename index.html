@@ -543,11 +543,11 @@ body.mobile #hand .card.sel{transform:translateY(calc(var(--ty,0px) - 14px)) rot
 
     <div class="menu-card">
       <h3>多人模式</h3>
-      <p>建立房間後把房間代碼告訴朋友；只有一位真人時，可以補入電腦 AI 當對手。</p>
+      <p>建立房間時自訂 4 位數字密碼，把密碼告訴朋友即可加入；只有一位真人時，可以補入電腦 AI 當對手。</p>
       <div class="row" style="margin-bottom:10px"><span class="lbl">你的名字</span><input class="input" id="inName" maxlength="8" placeholder="玩家" style="flex:1;min-width:120px;width:auto"></div>
+      <div class="row" style="margin-bottom:10px"><span class="lbl">房間密碼</span><input class="input code" id="inHostCode" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="自訂 4 位數字" style="flex:1;min-width:120px;width:auto;font-size:18px;letter-spacing:.25em"><button class="btn primary" id="btnHost">建立房間</button></div>
       <div class="row">
-        <button class="btn primary" id="btnHost">建立房間</button>
-        <input class="input code" id="inCode" maxlength="4" placeholder="代碼" style="width:130px">
+        <input class="input code" id="inCode" maxlength="4" inputmode="numeric" pattern="[0-9]*" autocomplete="off" placeholder="輸入密碼" style="flex:1;min-width:120px;width:auto">
         <button class="btn" id="btnJoin">加入房間</button>
       </div>
       <div class="note" id="netNote">朋友需要能開啟這個頁面（由你分享連結給對方）才能加入房間。</div>
@@ -562,7 +562,7 @@ body.mobile #hand .card.sel{transform:translateY(calc(var(--ty,0px) - 14px)) rot
     <div class="menu-card" style="text-align:center">
       <h3 id="lobTitle">房間大廳</h3>
       <div class="code-big" id="lobCode">----</div>
-      <div class="note" style="margin:0 0 10px">把這組代碼告訴朋友，對方在主選單輸入即可加入</div>
+      <div class="note" style="margin:0 0 10px">把這組 4 位數字密碼告訴朋友，對方在主選單輸入即可加入</div>
       <div style="text-align:left">
         <div class="seat"><span class="dot on"></span><b id="lobSeat0">你</b><span style="opacity:.6">（房主）</span></div>
         <div class="seat"><span class="dot" id="lobDot"></span><b id="lobSeat1">等待玩家加入…</b></div>
@@ -2298,13 +2298,14 @@ function renderLobby() {
 function readName() { myName = ($('#inName').value || '').trim().slice(0, 8) || '玩家'; return myName; }
 
 function netErrMsg() {
-  return ({ lib: '無法載入連線元件（PeerJS）。請確認網路可連到 unpkg.com／jsdelivr.net，或改用 claude.ai 內的版本。', nohost: '找不到這個房間。請確認代碼正確，且房主已建立房間並停留在大廳。', taken: '房間代碼衝突，請再按一次建立房間。', timeout: '連線逾時。請檢查網路（部分公司／校園網路會擋 P2P），或換一個網路再試。' })[NET.err] || '連線失敗，請檢查網路後重試。';
+  return ({ lib: '無法載入連線元件（PeerJS）。請確認網路可連到 unpkg.com／jsdelivr.net，或改用 claude.ai 內的版本。', nohost: '找不到這個房間。請確認密碼正確，且房主已建立房間並停留在大廳。', taken: '這組密碼已有人在使用，請換一組 4 位數字。', timeout: '連線逾時。請檢查網路（部分公司／校園網路會擋 P2P），或換一個網路再試。' })[NET.err] || '連線失敗，請檢查網路後重試。';
 }
 async function hostRoom() {
   readName();
+  const code = ($('#inHostCode').value || '').trim();
+  if (!/^\d{4}$/.test(code)) { toast('請先自訂 4 位數字的房間密碼（例如 2580）'); $('#inHostCode').focus(); return; }
   toast('正在建立房間…', 2500);
-  let code = genCode(), ok = await netOpen(code, 'host');
-  for (let k = 0; !ok && NET.err === 'taken' && k < 3; k++) { code = genCode(); ok = await netOpen(code, 'host'); }
+  const ok = await netOpen(code, 'host');
   if (!ok) { toast(netErrMsg(), 5000); return; }
   NET.role = 'host'; NET.hostName = myName; NET.guestId = null; NET.fill = '';
   CFG.mode = 'host'; CFG.seat = 0; CFG.ai = [false, false];
@@ -2312,8 +2313,8 @@ async function hostRoom() {
 }
 async function joinRoom() {
   readName();
-  const code = ($('#inCode').value || '').trim().toUpperCase();
-  if (code.length !== 4) { toast('請輸入 4 碼房間代碼'); return; }
+  const code = ($('#inCode').value || '').trim();
+  if (!/^\d{4}$/.test(code)) { toast('請輸入 4 位數字的房間密碼'); return; }
   toast('正在連線到房間…', 2500);
   const ok = await netOpen(code, 'guest');
   if (!ok) { toast(netErrMsg(), 5000); return; }
@@ -2430,6 +2431,7 @@ function init() {
     CFG.names = [readName(), '電腦（' + LEVELS[CFG.level].label + '）'];
     startLocalGame();
   };
+  ['#inHostCode', '#inCode'].forEach(s => $(s).addEventListener('input', e => { e.target.value = e.target.value.replace(/\D/g, '').slice(0, 4); }));
   $('#btnHost').onclick = hostRoom;
   $('#btnJoin').onclick = joinRoom;
   $('#btnLobStart').onclick = hostStart;
@@ -2456,7 +2458,7 @@ function init() {
   $('#btnRestart').onclick = () => { closeModal('mdMenu'); if (CFG.mode === 'guest') return; startLocalGame(); };
   $('#btnQuit').onclick = quitToMenu;
   $$('.modal').forEach(m => m.addEventListener('click', e => { if (e.target === m && m.id !== 'mdResult') m.classList.remove('on'); }));
-  if (!(window.claude && window.claude.use)) $('#netNote').textContent = '多人連線使用 PeerJS 點對點直連（需要網路）。房主建立房間後把 4 碼代碼告訴朋友即可；雙方須使用同一種開啟方式（同為網頁版或同為 claude.ai 版）。';
+  if (!(window.claude && window.claude.use)) $('#netNote').textContent = '多人連線使用 PeerJS 點對點直連（需要網路）。房主自訂 4 位數字密碼建立房間，把密碼告訴朋友即可；雙方須使用同一種開啟方式（同為網頁版或同為 claude.ai 版）。';
   try { const n = sessionStorage.getItem('hk-name'); if (n) $('#inName').value = n; } catch (e) { }
   $('#inName').addEventListener('change', () => { try { sessionStorage.setItem('hk-name', readName()); } catch (e) { } });
 }
