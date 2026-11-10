@@ -579,6 +579,7 @@ body.mobile .mini-rules{display:none}
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="manifest" href="manifest.json">
+<meta name="build" content="1794324492">
 </head>
 <body>
 <div id="room"><div class="ceil"></div><div class="win w1"></div><div class="win w2"></div><div class="win w3"></div><div class="cloud" style="left:0;animation-delay:-10s"></div><div class="cloud" style="top:20%;left:0;animation-delay:-38s;transform:scale(.8)"></div><div class="beam b1"></div><div class="beam b2"></div><div class="beam b3"></div><div class="floor"></div><div class="dust" id="dust"></div></div>
@@ -678,6 +679,7 @@ body.mobile .mini-rules{display:none}
   <div class="setrow"><span>過程動畫</span><div class="seg" id="segAnim"><button data-v="full" class="on">完整</button><button data-v="fast">快速</button><button data-v="off">關閉</button></div></div>
   <div class="setrow"><span>背景音樂</span><div class="seg" id="segMus"><button data-v="1" class="on">開</button><button data-v="0">關</button></div><input class="vol" type="range" id="volMus" min="0" max="100" value="55"></div>
   <div class="setrow"><span>按鍵／特效音</span><div class="seg" id="segSfx"><button data-v="1" class="on">開</button><button data-v="0">關</button></div><input class="vol" type="range" id="volSfx" min="0" max="100" value="80"></div>
+  <div class="setrow"><span>版本</span><span id="verTxt" style="opacity:.75;font-size:13px">—</span><button class="btn small" id="btnUpdate">檢查更新</button></div>
   <div class="setrow" id="rowFS"><span>全螢幕模式</span><button class="btn small" id="btnFS">開啟全螢幕</button></div>
   <div class="setrow" id="rowView"><span>3D 視角</span><button class="btn small" id="btnResetView">重置視角</button></div>
   <div class="note" id="detNote"></div>
@@ -2627,6 +2629,19 @@ init();
   const standalone = window.navigator.standalone || matchMedia('(display-mode:standalone),(display-mode:fullscreen)').matches;
   if (/iPhone|iPod|iPad/i.test(navigator.userAgent) && !standalone && $('#a2hs')) $('#a2hs').hidden = false;
 })();
+
+// ===================== 版本顯示與強制更新 =====================
+(() => {
+  const m = document.querySelector('meta[name=build]'), t = m ? +m.content : 0;
+  const el = $('#verTxt'); if (el) el.textContent = t ? new Date(t * 1000).toLocaleString('zh-TW', { hour12: false, month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' 建置' : '開發版';
+  const b = $('#btnUpdate'); if (!b) return;
+  b.onclick = async () => {
+    b.disabled = true; b.textContent = '更新中…';
+    try { const rs = await (navigator.serviceWorker ? navigator.serviceWorker.getRegistrations() : []); await Promise.all(rs.map(r => r.unregister())); } catch (e) { }
+    try { const ks = await (window.caches ? caches.keys() : []); await Promise.all(ks.map(k => caches.delete(k))); } catch (e) { }
+    location.replace(location.pathname + '?v=' + Date.now());
+  };
+})();
 </script>
-<script>if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}</script>
+<script>if('serviceWorker' in navigator){addEventListener('load',function(){var had=!!navigator.serviceWorker.controller;navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(function(reg){var chk=function(){reg.update().catch(function(){})};setInterval(chk,120000);document.addEventListener('visibilitychange',function(){if(!document.hidden)chk()});chk()}).catch(function(){});navigator.serviceWorker.addEventListener('controllerchange',function(){if(had&&!window.__rl){window.__rl=1;location.reload()}had=true})})}</script>
 </body></html>
