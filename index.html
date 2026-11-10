@@ -429,6 +429,19 @@ body.mobile #hand .card .t,.offer .card .t{font-size:8px}
 .pc,.pc.r,.pc.k{background:#222 url(items/back.jpg) center/cover no-repeat}
 .pc.face{background-size:cover}
 .backs i,.stash .fc,.stash .fc.k{background:#222 url(items/back.jpg) center/cover no-repeat}
+
+/* 扇形持牌（單手拿撲克牌）*/
+#hand{padding-top:40px;--cw:min(var(--hmax),calc(100% / (var(--hn,6) * .7 + .35)))}
+#hand .card{width:var(--cw);margin-left:calc(var(--cw) * -.3);transform-origin:50% 90%;transform:translateY(var(--ty,0)) rotate(var(--rot,0deg));transition:transform .18s}
+#hand .card:first-of-type,#hand .trayBtn+.card{margin-left:0}
+#hand .card:hover:not(:disabled){z-index:5}
+#hand .card.pickable:hover{transform:translateY(calc(var(--ty,0px) - 10px)) rotate(var(--rot,0deg))}
+#hand .card.sel{transform:translateY(calc(var(--ty,0px) - 22px)) rotate(var(--rot,0deg));z-index:6}
+body.mobile #hand{padding-top:26px}
+body.mobile #hand .card.sel{transform:translateY(calc(var(--ty,0px) - 14px)) rotate(var(--rot,0deg))}
+.backs{padding:4px 12px 0 8px}
+.backs i{width:21px;height:30px;margin:0 0 0 -14px;transform-origin:50% 120%;transform:translateY(var(--ty,0)) rotate(var(--rot,0deg))}
+.backs i:first-child{margin-left:0}
 </style>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1284,7 +1297,7 @@ function cardHTML(id, opt) {
   const t = CARD_TYPE[id], T = TYPES[t];
   const tag = opt.btn ? 'button' : 'div';
   const pend = typeof FX !== 'undefined' && FX.pendHand && FX.pendHand.has(id) ? ' pendh' : '';
-  return `<${tag} class="card ${opt.cls || ''}${pend}" style="--c:${T.color};background-image:url(items/${T.code}.jpg)" data-id="${id}" ${opt.dis ? 'disabled' : ''} title="${T.name}（能力 ${T.charm}）">
+  return `<${tag} class="card ${opt.cls || ''}${pend}" style="--c:${T.color};background-image:url(items/${T.code}.jpg)${opt.fan || ''}" data-id="${id}" ${opt.dis ? 'disabled' : ''} title="${T.name}（能力 ${T.charm}）">
     <span class="t">${T.name}</span></${tag}>`;
 }
 // ===================== 3D 牌桌（CSS 3D） =====================
@@ -1441,7 +1454,7 @@ function scoreOf(side) {
 function renderPlayers() {
   const opAct = (V.phase === 'turn' && V.cur !== V.seat) || (V.phase === 'respond' && V.pending.by === V.seat);
   const meAct = myTurn() || iRespond();
-  let ob = ''; for (let i = 0; i < V.op.handN; i++) ob += '<i></i>';
+  let ob = ''; { const n = V.op.handN, st = Math.min(7, 40 / Math.max(n - 1, 1)); for (let i = 0; i < n; i++) { const d = i - (n - 1) / 2; ob += `<i style="--rot:${(d * st).toFixed(1)}deg;--ty:${(d * d * 0.7 - ((n - 1) / 2) ** 2 * 0.7).toFixed(1)}px"></i>`; } }
   let opStash = '';
   if (V.op.hasSecret) opStash += `<span class="stash"><i class="fc k"></i>秘密贈與</span>`;
   if (V.op.discardN) opStash += `<span class="stash"><i class="fc"></i>無籍銷賬</span>`;
@@ -1514,7 +1527,10 @@ function renderHand() {
   const can = myTurn() && ui.mode && ui.step === 'select';
   $('#hand').style.setProperty('--hn', Math.max(hand.length, 5));
   const toggle = offerVisible() ? '<button class="btn small trayBtn" id="btnShowOffer">看提案</button>' : '';
-  $('#hand').innerHTML = toggle + hand.map(id => cardHTML(id, { btn: 1, dis: !can, cls: (can ? 'pickable ' : '') + (ui.sel.includes(id) ? 'sel' : '') })).join('') ||
+  // 單手持撲克牌的扇形：以中間牌為軸左右展開，中央牌略高、兩側下沉
+  const hn = hand.length, hc = (hn - 1) / 2, hst = Math.min(7, 44 / Math.max(hn - 1, 1));
+  const fan = i => `;--rot:${((i - hc) * hst).toFixed(1)}deg;--ty:${(((i - hc) ** 2 - hc * hc) * 2.2).toFixed(1)}px`;
+  $('#hand').innerHTML = toggle + hand.map((id, i) => cardHTML(id, { btn: 1, dis: !can, fan: fan(i), cls: (can ? 'pickable ' : '') + (ui.sel.includes(id) ? 'sel' : '') })).join('') ||
     '<span style="opacity:.5;font-size:13px">（手牌已用完）</span>';
 }
 function renderActs() {
@@ -1855,7 +1871,7 @@ function applyDevice() {
   if (lay !== LAYOUT) { LAYOUT = lay; if (ST.built) { buildStage(); ST.last = null; } }
   document.body.classList.toggle('mobile', DEVICE === 'mobile');
   document.body.classList.toggle('desktop', DEVICE !== 'mobile');
-  ST.defRx = DEVICE === 'mobile' ? 36 : 52;
+  ST.defRx = DEVICE === 'mobile' ? 36 : 26;
   $('#stage').style.setProperty('--pz', DEVICE === 'mobile' ? 12 : 13);
   if (!ST.touched) { ST.rx = ST.defRx; applyView(); }
   checkOrient();
