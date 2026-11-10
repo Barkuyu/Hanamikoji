@@ -3,9 +3,11 @@
   "short_name": "賄賂統戰",
   "start_url": "./",
   "scope": "./",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "portrait",
+  "background_color": "#080e18",
+  "theme_color": "#080e18",
   "icons": [
     {
       "src": "icon-192.png",
