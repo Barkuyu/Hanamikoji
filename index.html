@@ -505,6 +505,27 @@ body.desktop .act small{font-size:10.5px;line-height:1.3;padding:0 3px;word-brea
 .mini-rules b{color:#ffd98a}
 body.mobile .mini-rules{display:none}
 </style>
+<style id="actfix">
+.stage-hint{display:none!important}
+/* 行動鍵：統一四欄結構（圖示／名稱／張數／說明），全部置中對齊、等高 */
+#actbar .act{display:grid!important;grid-template-rows:auto auto auto 1fr;justify-items:center;align-items:start;align-content:start;row-gap:2px;
+ padding:8px 4px 8px!important;min-height:96px;border:1px solid rgba(150,200,255,.38)!important;border-image:none!important;border-radius:12px;
+ background:linear-gradient(180deg,#2a4766,#182b42)!important;text-align:center}
+#actbar .act .ai{font-size:22px;line-height:1.1;margin:0}
+#actbar .act b{font:700 14px/1.2 var(--serif);color:#fff;letter-spacing:.02em;white-space:nowrap;margin:0}
+#actbar .act .cn{font:700 11px/1 var(--sans);color:#ffd98a;background:rgba(255,217,138,.14);border:1px solid rgba(255,217,138,.35);border-radius:999px;padding:2px 8px;margin:1px 0 2px}
+#actbar .act small{font:400 11px/1.35 var(--sans);color:#cfe3f7;opacity:.92;margin:0;padding:0 2px;word-break:keep-all;overflow-wrap:anywhere;text-wrap:balance;text-align:center}
+#actbar .act.on{background:linear-gradient(180deg,#5b93c4,#2d5f8f)!important;border-color:#cfe9ff!important}
+#actbar .act.on b,#actbar .act.on small{color:#fff}
+#actbar .act.used{text-decoration:none;opacity:.5}
+#actbar .act.used b{text-decoration:line-through}
+body.mobile #actbar .act{min-height:62px;padding:6px 2px!important;row-gap:1px}
+body.mobile #actbar .act .ai{font-size:18px}
+body.mobile #actbar .act b{font-size:13px}
+body.mobile #actbar .act .cn{font-size:10px;padding:1px 6px}
+body.mobile #actbar .act small{display:none}
+@media (max-height:700px){body.desktop #actbar .act small{display:none}body.desktop #actbar .act{min-height:70px}}
+</style>
 <style id="ui3d">
 /* ===== 立體按鍵／面板（疊層擠出厚度 + 隨游標傾斜 + 高光跟隨）===== */
 :root{--e1:#3a6a96;--e2:#2b5277;--e3:#1f3d5a;--e4:#152c43;--e5:#0e2034;--e6:#0a1828;--e7:#07111e}
@@ -579,7 +600,7 @@ body.mobile .mini-rules{display:none}
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="manifest" href="manifest.json">
-<meta name="build" content="1794324977">
+<meta name="build" content="1794325191">
 </head>
 <body>
 <div id="room"><div class="ceil"></div><div class="win w1"></div><div class="win w2"></div><div class="win w3"></div><div class="cloud" style="left:0;animation-delay:-10s"></div><div class="cloud" style="top:20%;left:0;animation-delay:-38s;transform:scale(.8)"></div><div class="beam b1"></div><div class="beam b2"></div><div class="beam b3"></div><div class="floor"></div><div class="dust" id="dust"></div></div>
@@ -1928,6 +1949,7 @@ function initStageControls() {
   if (window.ResizeObserver) { let t; new ResizeObserver(() => { clearTimeout(t); t = setTimeout(fitStage, 60); }).observe(st); }
 }
 const VIEW_LOCK = false;   // 3D 視角可拖曳旋轉（僅鎖定裝置螢幕旋轉）
+const ACT_SHORT = { secret: '蓋住，結算才計分', discard: '蓋住，本局不計分', gift: '公開，對手先拿 1 張', compete: '分 2 組，對手先拿 1 組' };
 const ACT_ICON = { secret: '✉️', discard: '🗑️', gift: '🤝', compete: '💰' };
 const myTurn = () => V && !FX.busy && V.phase === 'turn' && V.cur === V.seat;
 const iRespond = () => V && !FX.busy && V.phase === 'respond' && V.pending.by !== V.seat;
@@ -2025,7 +2047,7 @@ function renderHand() {
 function renderActs() {
   const turn = myTurn();
   $('#actbar').innerHTML = ACT_KEYS.map(k => `<button class="act ${ui.mode === k ? 'on' : ''} ${V.me.used[k] ? 'used' : ''}" data-act="${k}" ${(!turn || V.me.used[k] || (ui.mode && ui.step === 'group')) ? 'disabled' : ''}>
-    <i class="ai">${ACT_ICON[k]}</i><b>${ACTS[k].name} ${ACTS[k].n}</b><small>${ACTS[k].desc}</small></button>`).join('');
+    <i class="ai">${ACT_ICON[k]}</i><b>${ACTS[k].name}</b><span class="cn">${ACTS[k].n} 張</span><small>${ACT_SHORT[k]}</small></button>`).join('');
   let c = '';
   if (turn && ui.mode) {
     const n = ACTS[ui.mode].n;
