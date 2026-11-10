@@ -10,7 +10,7 @@ document.addEventListener('touchmove',function(e){if(e.touches&&e.touches.length
 document.addEventListener('dblclick',p,s);
 addEventListener('wheel',function(e){if(e.ctrlKey)e.preventDefault()},s);
 addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&/^[=+\-0]$/.test(e.key))e.preventDefault()});})();</script>
-<title>花見小路 Hanamikoji</title>
+<title>Bribery賄賂統戰</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -312,7 +312,7 @@ body{background:#f6efe0}
 
 /* 介面：明亮毛玻璃 */
 .menu-card,.player,.offer,.status,.sheet,.act,.ib,.chip,.seat,.sum div,.grp{backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-.logo{color:#4a3622;text-shadow:0 2px 0 rgba(255,255,255,.9),0 0 36px rgba(255,214,120,.9)}
+.logo{font-size:clamp(30px,8.4vw,58px);letter-spacing:.04em;white-space:nowrap;color:#4a3622;text-shadow:0 2px 0 rgba(255,255,255,.9),0 0 36px rgba(255,214,120,.9)}
 .logo-sub{color:var(--gold2)}
 .sakura i{width:40px;height:58px;padding:0;background-size:cover;background-position:center;background-color:#222;border:2px solid #fffdf6;box-shadow:0 5px 12px rgba(100,70,20,.35);align-items:end;font:700 12px var(--serif);text-shadow:0 1px 2px #000}
 .menu-card{background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(255,250,238,.72));border:1px solid rgba(184,120,15,.35);box-shadow:0 10px 30px rgba(140,100,40,.16)}
@@ -404,7 +404,7 @@ body.mobile #hand .card .t,.offer .card .t{font-size:8px}
 /* ===== 過程動畫層 ===== */
 #cine{position:absolute;inset:0;pointer-events:none;z-index:6;overflow:hidden}
 .fcard{position:absolute;border-radius:9px;background-size:cover;background-position:center;background-color:#222;border:2px solid #fff;box-shadow:0 8px 22px rgba(60,40,10,.5);will-change:left,top,transform}
-.fcard.back{background:repeating-linear-gradient(45deg,#4a3585 0 5px,#33265f 5px 10px)}
+.fcard.back{background:#222 url(items/back.jpg) center/cover no-repeat}
 .fcard.gl{box-shadow:0 0 0 3px #f0b429,0 0 22px 6px rgba(255,200,60,.85)}
 .fcard.dim{filter:grayscale(.6) brightness(.8)}
 .fcard span{position:absolute;left:0;right:0;bottom:0;font:700 10px/1.5 var(--sans);color:#fff;text-align:center;background:rgba(0,0,0,.6);border-radius:0 0 7px 7px}
@@ -433,7 +433,7 @@ body.mobile #hand .card .t,.offer .card .t{font-size:8px}
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="花見小路 Hanamikoji">
+<meta name="apple-mobile-web-app-title" content="Bribery賄賂統戰">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="manifest" href="manifest.json">
@@ -445,8 +445,8 @@ body.mobile #hand .card .t,.offer .card .t{font-size:8px}
 <!-- ===== 主選單 ===== -->
 <div id="menu" class="screen on">
   <div class="menu-box">
-    <div class="logo-sub">HANAMIKOJI</div>
-    <h1 class="logo">花見小路</h1>
+    <div class="logo-sub">賄賂 · 統戰 · 信任</div>
+    <h1 class="logo">Bribery賄賂統戰</h1>
     <div class="sakura" id="sakura"></div>
 
     <div class="menu-card">
@@ -1893,7 +1893,7 @@ function openSettings() {
 }
 
 // ===================== 規則 =====================
-const RULES_HTML = `<h2>📖 花見小路 規則</h2>
+const RULES_HTML = `<h2>📖 Bribery賄賂統戰 規則</h2>
 <p>你是商業型政客，要用物品討好七位軍官，爭取他們的信任（信任標記）。兩人對戰，約 15 分鐘一局。</p>
 <h3>🏆 勝利條件（一局結算後檢查）</h3>
 <ul><li>擁有 <b>至少 4 位</b>軍官，或</li><li>擁有的軍官能力值總和 <b>至少 11 點</b></li><li>同時達標：<b>11 分的一方獲勝</b></li></ul>
