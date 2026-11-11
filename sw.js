@@ -1,4 +1,4 @@
-const CACHE='app-1794325191';
+const CACHE='app-1794410214';
 const CORE=['./','./index.html','./manifest.json','./icon-180.png','./icon-192.png','./icon-512.png','./assets/logo.webp','./assets/theme.css','./assets/theme.js','./assets/backgrounds/office_desktop.webp','./assets/backgrounds/office_mobile.webp','./assets/props/trust_medallion.webp','./assets/table/felt.webp','./assets/table/rim.webp','./assets/ui/button_danger.webp','./assets/ui/button_primary.webp','./assets/ui/button_secondary.webp','./assets/ui/panel_dialogue.webp','./assets/ui/panel_modal.webp','./cards/back.jpg','./items/back.jpg','./cards/A.jpg','./cards/B.jpg','./cards/C.jpg','./cards/D.jpg','./cards/E.jpg','./cards/F.jpg','./cards/G.jpg','./items/A.jpg','./items/B.jpg','./items/C.jpg','./items/D.jpg','./items/E.jpg','./items/F.jpg','./items/G.jpg'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)));self.skipWaiting()});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim()});
